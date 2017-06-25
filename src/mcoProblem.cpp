@@ -49,3 +49,8 @@ void MCOProblem::GetBounds(double* lb, double* ub) const
     ub[i] = mRightBound[i];
   }
 }
+
+double MCOProblem::CalculateFunction(int fNumber, const double* y) const
+{
+  return mCriterions[fNumber](y);
+}

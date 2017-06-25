@@ -25,4 +25,5 @@ public:
   int GetDimension() const;
   int GetCriterionsNumber() const;
   void GetBounds(double* lb, double* ub) const;
+  double CalculateFunction(int fNumber, const double* y) const;
 };
