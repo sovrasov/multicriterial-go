@@ -3,6 +3,7 @@
 #include "dataTypes.hpp"
 #include "mcoProblem.hpp"
 #include "evolvent.hpp"
+#include "queue.hpp"
 
 struct SolverParameters
 {
@@ -24,7 +25,25 @@ class MCOSolver
 {
 protected:
 
+  Evolvent mEvolvent;
+  std::vector<Trial> mSearchData;
+  std::vector<Trial> mNextPoints;
+  std::vector<double> mHEstimations;
+  IntervalsQueue mNextIntervals;
   SolverParameters mParameters;
+  MCOProblem mProblem;
+  bool mNeedFullRecalc;
+  unsigned mIterationsCounter;
+  unsigned mNumberOfTrials;
+
+  void InitDataStructures();
+  void FirstIteration();
+  void UpdateH(const Trial& left, const Trial& right);
+  void RecalcZ();
+  void InsertNextPoints();
+  void ClearDataStructures();
+  void CalculateNextPoints();
+  bool CheckStopCondition();
 
 public:
 
