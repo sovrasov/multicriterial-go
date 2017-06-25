@@ -16,14 +16,21 @@ Evolvent::~Evolvent()
 {
 }
 
-Evolvent::Evolvent(int dimension, int tightness, MapType type)
+Evolvent::Evolvent(int dimension, int tightness, double* lb, double* ub, MapType type)
 {
-  assert(dimension > 1);
   assert(tightness > 2);
 
   mDimension = dimension;
   mTightness = tightness;
   mMapType = type;
+
+  mShiftScalars.resize(mDimension);
+  mRho = 0.;
+  for (int i = 0; i < mDimension; i++)
+  {
+    mRho = fmax(mRho, ub[i] - lb[i]);
+    mShiftScalars[i] = 0.5*(lb[i] + ub[i]);
+  }
 
   switch (mMapType)
   {
@@ -45,14 +52,9 @@ void Evolvent::GetImage(double x, double y[])
 {
   if(mDimension != 1)
     mapd(x, mTightness, y, mDimension, mMapKey);
-}
 
-void Evolvent::GetImage(double x, double y[], double lb[], double ub[])
-{
-  if(mDimension != 1)
-    mapd(x, mTightness, y, mDimension, mMapKey);
-  for(int i = 0; i < mDimension; i++)
-    y[i] = (ub[i] - lb[i])*y[i] + 0.5*(ub[i] + lb[i]);
+  for (int i = 0; i < mDimension; i++)
+    y[i] = mRho*y[i] + mShiftScalars[i];
 }
 
 int Evolvent::GetAllPreimages(double * p, double xp[])
@@ -201,9 +203,8 @@ void invmad(int m, double xp[], int kp,
         xp[k + 1] = x;
       }
     }
-  m6:
-    for (i = n - 1; (i >= 0) && (u[i] = (u[i] <= 0.0) ? 1 : -1)<0; i--);
-    if (i<0) break;
+  m6: for (i = n - 1; (i >= 0) && (u[i] = (u[i] <= 0.0) ? 1 : -1)<0; i--);
+  if (i<0)break;
   }
   *kxx = ++kx;
 

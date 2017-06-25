@@ -1,6 +1,8 @@
 #ifndef EVOLVENT_HPP
 #define EVOLVENT_HPP
 
+#include <vector>
+
 #define MAX_PREIMAGES 32
 
 enum MapType {
@@ -12,19 +14,21 @@ class Evolvent
 protected:
   int mDimension;
   int mTightness;
-  bool mIsInitialized;
 
+  double mRho;
+  std::vector<double> mShiftScalars;
+
+  bool mIsInitialized;
 private:
   MapType mMapType;
   int mMapKey;
 
 public:
   Evolvent();
-  Evolvent(int dimension, int tightness, MapType type = Simple);
+  Evolvent(int dimension, int tightness, double* lb, double*ub, MapType type = Simple);
   ~Evolvent();
 
   void GetImage(double x, double y[]);
-  void GetImage(double x, double y[], double lb[], double ub[]);
   int GetAllPreimages(double* p, double xp[]);
 };
 
