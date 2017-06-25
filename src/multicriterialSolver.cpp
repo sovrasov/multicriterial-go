@@ -2,8 +2,20 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 const double zeroHLevel = 1e-12;
+
+template< typename T >
+typename std::vector<T>::iterator
+   insert_sorted( std::vector<T> & vec, T const& item )
+{
+    return vec.insert
+        (
+            std::upper_bound( vec.begin(), vec.end(), item ),
+            item
+        );
+}
 
 void MCOSolver::SetParameters(const SolverParameters& params)
 {
@@ -51,10 +63,9 @@ void MCOSolver::FirstIteration()
   for(size_t i = 0; i <= mParameters.numThreads; i++)
   {
     mSearchData.emplace_back((double)i / mParameters.numThreads);
-    double y[solverMaxDim];
-    mEvolvent.GetImage(mSearchData.back().x, y);
+    mEvolvent.GetImage(mSearchData.back().x, mSearchData.back().y);
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mSearchData.back().z[j] = mProblem.CalculateFunction(j, y);
+      mSearchData.back().z[j] = mProblem.CalculateFunction(j, mSearchData.back().y);
 
     if(i > 0)
       UpdateH(mSearchData[i - 1], mSearchData[i]);
@@ -82,22 +93,70 @@ void MCOSolver::UpdateH(const Trial& left, const Trial& right)
 
 void MCOSolver::RecalcZ()
 {
+  for(size_t i = 0; i < mSearchData.size(); i++)
+  {
+    if(!mNeedFullRecalc)
+    {
+      for(size_t j = 0; j < mNextPoints.size(); j++)
+        mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mNextPoints[j]));
+    }
+    else
+    {
+      mSearchData[i].h = std::numeric_limits<double>::min();
+      for(size_t j = 0; j < mSearchData.size(); j++)
+        mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
+    }
 
+    mNextIntervals.clear();
+    if(i > 0)
+    {
+      Interval currentInt(mSearchData[i-1], mSearchData[i]);
+      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
+      currentInt.R = currentInt.delta + pow(currentInt.pr.h - currentInt.pl.h, 2) / currentInt.delta -
+          2.*(currentInt.pr.h + currentInt.pl.h)/mParameters.r;
+      mNextIntervals.pushWithPriority(currentInt);
+    }
+  }
+}
+
+double MCOSolver::ComputeH(const Trial& x1, const Trial& x2)
+{
+  double value = std::numeric_limits<double>::max();
+
+  for(int i = 0; i < mProblem.GetCriterionsNumber(); i++)
+  {
+    value = fmin(value, (x1.z[i] - x2.z[i]) / mHEstimations[i]);
+  }
+
+  return value;
 }
 
 void MCOSolver::InsertNextPoints()
 {
-
+  for(size_t i = 0; i < mNextPoints.size(); i++)
+  {
+    insert_sorted(mSearchData, mNextPoints[i]);
+  }
 }
 
 void MCOSolver::CalculateNextPoints()
 {
+  for(size_t i = 0; i < mParameters.numThreads; i++)
+  {
+    Interval nextInterval = mNextIntervals.pop();
+    mNextPoints[i] = 0.5 * (nextInterval.pr.x + nextInterval.pl.x) -
+    0.5*(((nextInterval.pr.h - nextInterval.pl.h) > 0.) ? 1. : -1.) *
+      pow(fabs(nextInterval.pr.h - nextInterval.pl.h), mProblem.GetDimension()) / mParameters.r;
 
+    mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
+      for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
+        mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
+  }
 }
 
 void MCOSolver::ClearDataStructures()
 {
-
+  mNextIntervals.clear();
 }
 
 bool MCOSolver::CheckStopCondition()
@@ -111,5 +170,5 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints()
 }
 int MCOSolver::GetIterationsNumber() const
 {
-  return 0;
+  return mIterationsCounter;
 }

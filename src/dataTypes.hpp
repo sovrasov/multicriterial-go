@@ -2,33 +2,38 @@
 #define DATA_TYPES_HPP
 
 const unsigned solverMaxDim = 5;
+const unsigned solverMaxCriterions = 5;
 
 struct Trial
 {
   double x;
   double y[solverMaxDim];
-  double z;
+  double h;
+  double z[solverMaxCriterions];
   Trial() {}
-  Trial(double _x, double _z) : x(_x), z(_z) {}
+  Trial(double _x) : x(_x){}
 };
+
+inline bool operator<(const Trial& t1, const Trial& t2)
+{
+  return t1.x < t2.x;
+}
 
 struct Interval
 {
-  double xl;
-  double xr;
-  double zl;
-  double zr;
+  Trial pl;
+  Trial pr;
   double R;
   double delta;
   Interval() {}
-  Interval(double _xl, double _xr) : xl(_xl), xr(_xr) {}
+  Interval(const Trial& _xl, const Trial& _xr) : pl(_xl), pr(_xr) {}
 };
 
 inline bool operator<(const Interval& i1, const Interval& i2)
 {
-  return i1.xl < i2.xl;
+  return i1.R < i2.R;
 }
-
+/*
 class CompareByR
 {
 public:
@@ -37,5 +42,6 @@ public:
     return i1->R < i2->R;
   }
 };
+*/
 
 #endif

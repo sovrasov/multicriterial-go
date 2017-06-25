@@ -39,6 +39,7 @@ protected:
   void InitDataStructures();
   void FirstIteration();
   void UpdateH(const Trial& left, const Trial& right);
+  double ComputeH(const Trial& x1, const Trial& x2);
   void RecalcZ();
   void InsertNextPoints();
   void ClearDataStructures();
