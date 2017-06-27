@@ -34,3 +34,8 @@ Interval IntervalsQueue::pop()
 {
   return mHeapPtr->pop();
 }
+
+const std::vector<Interval>& IntervalsQueue::getElements() const
+{
+  return mHeapPtr->get_elements();
+}

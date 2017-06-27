@@ -14,6 +14,7 @@ public:
   size_t size() const;
   void clear();
 
+  const std::vector<Interval>& getElements() const;
   void pushWithPriority(const Interval& i);
   Interval pop();
 };

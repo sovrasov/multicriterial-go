@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
+#include <vector>
 
 inline unsigned int log2(unsigned int val)
 {
@@ -29,6 +30,7 @@ template<class T, class Compare = std::less<T> >
 class MinMaxHeap
 {
   T* m_heap; // здесь хранится содержимое кучи
+  std::vector<T> m_heam_mem_holder;
   Compare m_compare; // объект для сравнения
   unsigned m_heapsize; // размер кучи
   unsigned m_currentheapsize; // текущее количество элементов в куче
@@ -207,17 +209,20 @@ class MinMaxHeap
   }
 
 public:
-  MinMaxHeap(unsigned heapsize) : m_heap(NULL)
+  MinMaxHeap(unsigned heapsize) : m_heap(nullptr)
   {
     m_heapsize = heapsize;
-    m_heap = new T[m_heapsize];
+    m_heam_mem_holder.resize(heapsize);
+    m_heap = m_heam_mem_holder.data();
     m_currentheapsize = 0;
   }
 
   ~MinMaxHeap()
+  {  }
+
+  const std::vector<T>& get_elements() const
   {
-    if (m_heap != NULL)
-      delete[] m_heap;
+    return m_heam_mem_holder;
   }
 
   void clear()
