@@ -4,26 +4,25 @@
 #include <cmath>
 #include <limits>
 
-const double zeroHLevel = 1e-12;
-
-template< typename T >
-typename std::vector<T>::iterator
-   insert_sorted( std::vector<T> & vec, T const& item )
+namespace
 {
+  const double zeroHLevel = 1e-12;
+  bool isVectorLess(const double* v1, const double* v2, int dim)
+  {
+    for (int i = 0; i < dim; i++)
+      if (v1[i] >= v2[i])
+        return false;
+
+    return true;
+  }
+
+  template<typename T>
+  typename std::vector<T>::iterator
+    insert_sorted(std::vector<T> & vec, T const& item)
+  {
     return vec.insert
-        (
-            std::upper_bound( vec.begin(), vec.end(), item ),
-            item
-        );
-}
-
-bool isVectorLess(const double* v1, const double* v2, int dim)
-{
-  for(int i = 0; i < dim; i++)
-    if(v1[i] >= v2[i])
-      return false;
-
-  return true;
+    (std::upper_bound(vec.begin(), vec.end(), item), item);
+  }
 }
 
 void MCOSolver::SetParameters(const SolverParameters& params)
@@ -119,7 +118,7 @@ void MCOSolver::RecalcZ()
 
     if(i > 0)
     {
-      Interval currentInt(mSearchData[i-1], mSearchData[i]);
+      Interval currentInt(mSearchData[i - 1], mSearchData[i]);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
       currentInt.R = currentInt.delta + pow(currentInt.pr.h - currentInt.pl.h, 2) / currentInt.delta -
           2.*(currentInt.pr.h + currentInt.pl.h) / mParameters.r;
@@ -165,8 +164,8 @@ void MCOSolver::CalculateNextPoints()
       throw std::runtime_error("Point is outside of interval\n");
 
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
-      for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-        mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
+    for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
+      mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
     UpdateH(nextInterval.pl, nextInterval.pr);
   }
 }
