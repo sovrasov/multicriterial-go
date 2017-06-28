@@ -13,7 +13,7 @@ int main(int argc, const char** argv)
   problem.SetDomain(1, {-10.}, {10.});
 
   MCOSolver solver;
-  solver.SetParameters(SolverParameters(0.001, 5, 1, 100));
+  solver.SetParameters(SolverParameters(0.01, 4, 1, 2000));
   solver.SetProblem(problem);
   solver.Solve();
   auto solution = solver.GetWeakOptimalPoints();

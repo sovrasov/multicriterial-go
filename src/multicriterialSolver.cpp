@@ -1,4 +1,4 @@
-#include "multicriterialSolver.hpp"
+﻿#include "multicriterialSolver.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -107,7 +107,7 @@ void MCOSolver::RecalcZ()
   {
     if(!mNeedFullRecalc)
     {
-      for(size_t j = 0; j < mNextPoints.size(); j++)
+      for (size_t j = 0; j < mNextPoints.size(); j++)
         mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mNextPoints[j]));
     }
     else
@@ -126,6 +126,7 @@ void MCOSolver::RecalcZ()
       mNextIntervals.pushWithPriority(currentInt);
     }
   }
+  mNeedFullRecalc = false;
 }
 
 double MCOSolver::ComputeH(const Trial& x1, const Trial& x2)
@@ -144,6 +145,9 @@ void MCOSolver::InsertNextPoints()
 {
   for(size_t i = 0; i < mNextPoints.size(); i++)
   {
+    mNextPoints[i].h = ComputeH(mNextPoints[i], mNextPoints[i]);
+    for (size_t j = 0; j < mSearchData.size(); j++)
+      mNextPoints[i].h = fmax(mNextPoints[i].h, ComputeH(mNextPoints[i], mSearchData[j]));
     insert_sorted(mSearchData, mNextPoints[i]);
   }
 }
