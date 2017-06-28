@@ -17,6 +17,15 @@ typename std::vector<T>::iterator
         );
 }
 
+bool isVectorLess(const double* v1, const double* v2, int dim)
+{
+  for(int i = 0; i < dim; i++)
+    if(v1[i] >= v2[i])
+      return false;
+
+  return true;
+}
+
 void MCOSolver::SetParameters(const SolverParameters& params)
 {
   mParameters = params;
@@ -151,6 +160,7 @@ void MCOSolver::CalculateNextPoints()
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
       for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
         mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
+    UpdateH(nextInterval.pl, nextInterval.pr);
   }
 }
 
@@ -161,12 +171,34 @@ void MCOSolver::ClearDataStructures()
 
 bool MCOSolver::CheckStopCondition()
 {
-  return true;
+  auto nextIntervals = mNextIntervals.getElements();
+  for(size_t i = 0; i < nextIntervals.size(); i++)
+    if(nextIntervals[i].delta < mParameters.eps)
+      return true;
+
+  return false;
 }
 
 std::vector<Trial> MCOSolver::GetWeakOptimalPoints()
 {
-  return std::vector<Trial>();
+  std::vector<Trial> optTrials;
+
+  for(size_t i = 0; i < mSearchData.size(); i++)
+  {
+    bool isWeakOptimal = true;
+    for(size_t j = 0; j < mSearchData.size(); j++)
+    {
+      if(i != j)
+      {
+        if(isVectorLess(mSearchData[j].z, mSearchData[i].z, mProblem.GetCriterionsNumber()))
+          isWeakOptimal = false;
+      }
+    }
+    if(isWeakOptimal)
+      optTrials.push_back(mSearchData[i]);
+  }
+
+  return mSearchData;
 }
 int MCOSolver::GetIterationsNumber() const
 {
