@@ -166,7 +166,9 @@ void MCOSolver::CalculateNextPoints()
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
       mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
-    UpdateH(nextInterval.pl, nextInterval.pr);
+
+    UpdateH(mNextPoints[i], nextInterval.pr);
+    UpdateH(nextInterval.pl, mNextPoints[i]);
   }
 }
 
