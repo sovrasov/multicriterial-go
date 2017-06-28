@@ -52,6 +52,8 @@ void Evolvent::GetImage(double x, double y[])
 {
   if(mDimension != 1)
     mapd(x, mTightness, y, mDimension, mMapKey);
+  else
+    y[0] = x - 0.5;
 
   for (int i = 0; i < mDimension; i++)
     y[i] = mRho*y[i] + mShiftScalars[i];

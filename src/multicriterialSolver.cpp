@@ -49,7 +49,7 @@ void MCOSolver::Solve()
     RecalcZ();
     needStop = CheckStopCondition();
     mIterationsCounter++;
-  } while(mNumberOfTrials < mParameters.trialsLimit && !needStop);
+  } while(mIterationsCounter < mParameters.iterationsLimit && !needStop);
 
   ClearDataStructures();
 }
@@ -59,7 +59,7 @@ void MCOSolver::InitDataStructures()
   double leftDomainBound[solverMaxDim], rightDomainBound[solverMaxDim];
   mProblem.GetBounds(leftDomainBound, rightDomainBound);
   mEvolvent = Evolvent(mProblem.GetDimension(), mParameters.evloventTightness, leftDomainBound, rightDomainBound);
-  mSearchData.reserve(mParameters.trialsLimit);
+  mSearchData.reserve(mParameters.iterationsLimit);
   mNextPoints.resize(mParameters.numThreads);
   mNextIntervals.resize(mParameters.numThreads);
 
@@ -102,6 +102,7 @@ void MCOSolver::UpdateH(const Trial& left, const Trial& right)
 
 void MCOSolver::RecalcZ()
 {
+  mNextIntervals.clear();
   for(size_t i = 0; i < mSearchData.size(); i++)
   {
     if(!mNeedFullRecalc)
@@ -116,13 +117,12 @@ void MCOSolver::RecalcZ()
         mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
     }
 
-    mNextIntervals.clear();
     if(i > 0)
     {
       Interval currentInt(mSearchData[i-1], mSearchData[i]);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
       currentInt.R = currentInt.delta + pow(currentInt.pr.h - currentInt.pl.h, 2) / currentInt.delta -
-          2.*(currentInt.pr.h + currentInt.pl.h)/mParameters.r;
+          2.*(currentInt.pr.h + currentInt.pl.h) / mParameters.r;
       mNextIntervals.pushWithPriority(currentInt);
     }
   }
@@ -153,9 +153,12 @@ void MCOSolver::CalculateNextPoints()
   for(size_t i = 0; i < mParameters.numThreads; i++)
   {
     Interval nextInterval = mNextIntervals.pop();
-    mNextPoints[i] = 0.5 * (nextInterval.pr.x + nextInterval.pl.x) -
-    0.5*(((nextInterval.pr.h - nextInterval.pl.h) > 0.) ? 1. : -1.) *
-      pow(fabs(nextInterval.pr.h - nextInterval.pl.h), mProblem.GetDimension()) / mParameters.r;
+    double dh = nextInterval.pr.h - nextInterval.pl.h;
+    mNextPoints[i].x = 0.5 * (nextInterval.pr.x + nextInterval.pl.x) -
+      0.5*((dh > 0.) ? 1. : -1.) * pow(fabs(dh), mProblem.GetDimension()) / mParameters.r;
+
+    if (mNextPoints[i].x >= nextInterval.pr.x || mNextPoints[i].x <= nextInterval.pl.x)
+      throw std::runtime_error("Point is outside of interval\n");
 
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
       for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
@@ -198,7 +201,7 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints()
       optTrials.push_back(mSearchData[i]);
   }
 
-  return mSearchData;
+  return optTrials;
 }
 int MCOSolver::GetIterationsNumber() const
 {

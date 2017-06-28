@@ -10,14 +10,14 @@ struct SolverParameters
   double eps;
   double r;
   unsigned numThreads;
-  unsigned trialsLimit;
+  unsigned iterationsLimit;
   unsigned evloventTightness = 12;
   bool verbose = false;
 
   SolverParameters() {}
   SolverParameters(double _eps, double _r,
-      unsigned _numThreads, unsigned _trialsLimit) :
-        eps(_eps), r(_r), numThreads(_numThreads), trialsLimit(_trialsLimit)
+      unsigned _numThreads, unsigned _itersLimit) :
+        eps(_eps), r(_r), numThreads(_numThreads), iterationsLimit(_itersLimit)
   {}
 };
 

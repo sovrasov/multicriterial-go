@@ -10,19 +10,19 @@ int main(int argc, const char** argv)
   problem.AddCriterion(
     [](const double* y) -> double { return (y[0] - 2)*(y[0] - 2);  }
   );
-  problem.SetDomain(1, {-100.}, {100.});
+  problem.SetDomain(1, {-10.}, {10.});
 
   MCOSolver solver;
-  solver.SetParameters(SolverParameters(0.0001, 3, 1, 10000));
+  solver.SetParameters(SolverParameters(0.001, 5, 1, 100));
   solver.SetProblem(problem);
   solver.Solve();
   auto solution = solver.GetWeakOptimalPoints();
 
   std::cout << "Iterations performed: " << solver.GetIterationsNumber() << std::endl;
 
-  for(auto x : solution)
+  for(auto& x : solution)
   {
-    std::cout << x.h << "\n";
+    std::cout << x.y[0] << "\n";
   }
 
   return 0;
