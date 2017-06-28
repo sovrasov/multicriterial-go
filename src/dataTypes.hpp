@@ -1,5 +1,4 @@
-#ifndef DATA_TYPES_HPP
-#define DATA_TYPES_HPP
+#pragma once
 
 const unsigned solverMaxDim = 5;
 const unsigned solverMaxCriterions = 5;
@@ -33,15 +32,3 @@ inline bool operator<(const Interval& i1, const Interval& i2)
 {
   return i1.R < i2.R;
 }
-/*
-class CompareByR
-{
-public:
-  bool operator() (const Interval* i1, const Interval* i2)
-  {
-    return i1->R < i2->R;
-  }
-};
-*/
-
-#endif
