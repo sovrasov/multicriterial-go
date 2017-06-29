@@ -7,9 +7,6 @@
 
 inline unsigned int log2(unsigned int val)
 {
-  //if (val == 0)
-  //	throw exception("log2(0) не определен\n");
-
   unsigned int result = 0;
 
   while (val)
@@ -126,9 +123,6 @@ class MinMaxHeap
   template<bool MaxLevel>
   void trickleDown_(unsigned int index) // вспомогательный метод для погружения
   {
-    //  if ( index >= m_currentheapsize ) // убедимся, что элемент существует
-     //     throw exception("Элемент с таким индексом не существует\n");
-
     unsigned int smallestNode = index; // храним индекс наименьшего узла
     unsigned int left = leftChild(index); // получаем правого сына
 
@@ -191,10 +185,6 @@ class MinMaxHeap
   // ------------------------------------------------------------------------------------------------
   void deleteElement(unsigned int index) // удаление элемента из кучи
   {
-    //     if (index >= (unsigned int)m_currentheapsize) // проверить существование элемента
-     //        throw exception("Элемент с таким индексом не существует\n");
-
-         // если мы удаляем последний элемент из кучи
     if (index == m_currentheapsize - 1)
     {
       m_currentheapsize--;
@@ -254,16 +244,11 @@ public:
       m_currentheapsize++;
       return m_heap + trickleUp(m_currentheapsize - 1); // всплываем
     }
-    return NULL;
-    //	else
-    //		throw exception("Вставка в кучу невозможна! Переполнение!\n");
+    return nullptr;
   }
 
   const T & findMax() const // возвращает максимум за O(1) без удаления из кучи
   {
-    //      if (empty()) // проверка на пустоту
-     //         throw exception("Куча пуста \n");
-
     return m_heap[0];
   }
 
@@ -274,9 +259,6 @@ public:
 
   T popMax() // извлечение (с удалением из кучи) максимального элемента
   {
-    //   if (empty()) // проверяем кучу на пустоту
-     //      throw exception("Куча пуста \n");
-
     T temp = m_heap[0]; // сохраняем максимум
     int delIndx = 0;
     deleteElement(delIndx); // удаляем
@@ -292,23 +274,10 @@ public:
 
   T popMin() // извлечение (с удалением из кучи) минимального элемента
   {
-    //   if (empty()) // проверяем не пуста ли куча
-     //      throw exception("Куча пуста \n");
-
     unsigned int smallest = findMinIndex(); // сохраняем индекс минимума
     T temp = m_heap[smallest]; // сохраняем минимальное значение
     deleteElement(smallest); // удаляем
 
     return temp;
   }
-/*
-  void deleteElement(const T* ptr)
-  {
-    unsigned index = ptr - m_heap;
-    //if(index >= 0 && index < m_heapsize)
-    deleteElement(index);
-    //	else
-    //		throw std::exception("Куча пуста \n");
-  }
-  */
 };
