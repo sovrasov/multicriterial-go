@@ -208,6 +208,7 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
 
   return optTrials;
 }
+
 int MCOSolver::GetIterationsNumber() const
 {
   return mIterationsCounter;
