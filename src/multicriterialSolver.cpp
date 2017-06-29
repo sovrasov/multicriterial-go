@@ -120,7 +120,7 @@ void MCOSolver::RecalcZ()
     {
       Interval currentInt(mSearchData[i - 1], mSearchData[i]);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
-      currentInt.R = currentInt.delta + pow(currentInt.pr.h - currentInt.pl.h, 2) / currentInt.delta -
+      currentInt.R = currentInt.delta + pow((currentInt.pr.h - currentInt.pl.h) / mParameters.r, 2) / currentInt.delta -
           2.*(currentInt.pr.h + currentInt.pl.h) / mParameters.r;
       mNextIntervals.pushWithPriority(currentInt);
     }
