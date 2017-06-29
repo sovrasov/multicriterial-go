@@ -43,6 +43,30 @@ int main(int argc, const char** argv)
   parser.parse_check(argc, argv);
 
   MCOProblem problem;
+
+  const int dimension = 2;
+
+  problem.AddCriterion(
+    [](const double* y) -> double {
+      double shift = 1. / sqrt(dimension);
+      double eArg = 0;
+      for(int i = 0; i < dimension; i++)
+        eArg -= pow(y[i] - shift, 2);
+      return 1 - exp(eArg);
+    }
+  );
+  problem.AddCriterion(
+    [](const double* y) -> double {
+      double shift = 1. / sqrt(dimension);
+      double eArg = 0;
+      for(int i = 0; i < dimension; i++)
+        eArg -= pow(y[i] + shift, 2);
+      return 1 - exp(eArg);
+    }
+  );
+  problem.SetDomain(dimension, {-4., -4.}, {4., 4.});
+
+  /*
   problem.AddCriterion(
     [](const double* y) -> double { return y[0]*y[0];  }
   );
@@ -50,6 +74,7 @@ int main(int argc, const char** argv)
     [](const double* y) -> double { return (y[0] - 2)*(y[0] - 2);  }
   );
   problem.SetDomain(1, {-10.}, {10.});
+  */
 
   MCOSolver solver;
   solver.SetParameters(SolverParameters(parser.get<double>("accuracy"),

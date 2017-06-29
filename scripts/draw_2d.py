@@ -39,7 +39,7 @@ def main():
     plt.plot(W[:,0], W[:,1], 'ro')
 
     plt.grid()
-    plt.savefig('plot2d.png', format = 'png', dpi = 200)
+    plt.savefig(sys.argv[2] + '.png', format = 'png', dpi = 200)
     plt.clf()
 
 if __name__ == '__main__':
