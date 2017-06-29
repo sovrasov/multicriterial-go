@@ -174,7 +174,7 @@ class MinMaxHeap
     {
     case 0:
       // куча пуста
-      throw std::runtime_error("");
+      throw std::runtime_error("try to find min in empty heap");
       break;
     case 1:
       // в куче только один элемент

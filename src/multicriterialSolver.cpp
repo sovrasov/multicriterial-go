@@ -177,7 +177,7 @@ void MCOSolver::ClearDataStructures()
   mNextIntervals.clear();
 }
 
-bool MCOSolver::CheckStopCondition()
+bool MCOSolver::CheckStopCondition() const
 {
   auto nextIntervals = mNextIntervals.getElements();
   for(size_t i = 0; i < nextIntervals.size(); i++)
@@ -187,7 +187,7 @@ bool MCOSolver::CheckStopCondition()
   return false;
 }
 
-std::vector<Trial> MCOSolver::GetWeakOptimalPoints()
+std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
 {
   std::vector<Trial> optTrials;
 

@@ -44,7 +44,7 @@ protected:
   void InsertNextPoints();
   void ClearDataStructures();
   void CalculateNextPoints();
-  bool CheckStopCondition();
+  bool CheckStopCondition() const;
 
 public:
 
@@ -53,6 +53,6 @@ public:
 
   void Solve();
 
-  std::vector<Trial> GetWeakOptimalPoints();
+  std::vector<Trial> GetWeakOptimalPoints() const;
   int GetIterationsNumber() const;
 };

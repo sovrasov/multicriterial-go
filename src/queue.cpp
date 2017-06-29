@@ -9,7 +9,9 @@ void IntervalsQueue::pushWithPriority(const Interval& i)
 {
   if(!mHeapPtr->empty())
   {
-    if(i.R > mHeapPtr->findMin().R)
+    if(!mHeapPtr->is_full())
+      mHeapPtr->push(i);
+    else if(i.R > mHeapPtr->findMin().R)
     {
       if(mHeapPtr->is_full())
         mHeapPtr->popMin();
