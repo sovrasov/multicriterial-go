@@ -37,13 +37,22 @@ int main(int argc, const char** argv)
     false, 4.5, cmdline::range(1., 1000.));
   parser.add<double>("accuracy", 'e', "accuracy of the method", false, 0.01);
   parser.add<int>("itersLimit", 'l', "limit of iterations for the method", false, 2000);
+  parser.add<int>("dim", 'd', "test problem dimension (will be set if supported)", false, 2);
   parser.add<std::string>("outFile", 'f', "name of the file to write solution",
     false, "solution.csv");
+  parser.add<std::string>("probName", 'n', "name of the test problem",
+    false, "fonseca");
   parser.add("saveSolution", 's', "determines whether the method will "
     "save solution into a .csv file");
   parser.parse_check(argc, argv);
 
-  MCOProblem problem = TestMCOProblems::create("fonseca", 2);
+  MCOProblem problem = TestMCOProblems::create(
+    parser.get<std::string>("probName"), parser.get<int>("dim"));
+  if(problem.GetCriterionsNumber() == 0)
+  {
+    std::cerr << "Wrong test problem name\n";
+    exit(0);
+  }
 
   MCOSolver solver;
   solver.SetParameters(SolverParameters(parser.get<double>("accuracy"),

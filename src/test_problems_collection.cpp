@@ -36,7 +36,31 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
         return 1 - exp(eArg);
       }
     );
-    problem.SetDomain(dimension, {-4., -4.}, {4., 4.});
+    std::vector<double> lb(dimension, -4.0);
+    std::vector<double> ub(dimension, 4.0);
+    problem.SetDomain(dimension, lb.data(), ub.data());
+  }
+  else if(name == "kursawe")
+  {
+    dimension = 3;
+    problem.SetDomain(dimension, {-5, -5, -5}, {5, 5, 5});
+
+    problem.AddCriterion(
+      [dimension](const double* y) -> double {
+        double val = 0.;
+        for(int i = 0; i < dimension - 1; i++)
+          val -= 10.*exp(-0.2*sqrt(y[i]*y[i] + y[i + 1]*y[i + 1]));
+        return val;
+      }
+    );
+    problem.AddCriterion(
+      [dimension](const double* y) -> double {
+        double val = 0.;
+        for(int i = 0; i < dimension; i++)
+          val += pow(fabs(y[i]), 0.8) + 5.*sin(pow(y[i], 3));
+        return val;
+      }
+    );
   }
 
   return problem;
