@@ -5,6 +5,7 @@ set(PROJECT_NAME_STR multicriterial_sample)
 project (${PROJECT_NAME_STR})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rd-party)
 
 file(GLOB SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
