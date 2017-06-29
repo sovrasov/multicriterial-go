@@ -1,6 +1,29 @@
 #include "multicriterialSolver.hpp"
+
 #include <iostream>
+#include <fstream>
 #include <cmdline.h>
+#include <chrono>
+#include <string>
+
+void saveOptimalPoints(const std::string& filename, std::vector<Trial> points, int dim, int m)
+{
+  std::ofstream fout;
+  fout.open(filename, std::ios_base::out);
+
+  fout << dim << "\n" << m << "\n";
+
+  for(auto& x : points)
+  {
+    for(int i = 0; i < dim; i++)
+      fout << x.y[i] << ", ";
+    for(int i = 0; i < m - 1; i++)
+      fout << x.z[i] << ", ";
+    fout << x.z[m - 1] << ";\n";
+  }
+
+  fout.close();
+}
 
 int main(int argc, const char** argv)
 {
@@ -13,6 +36,10 @@ int main(int argc, const char** argv)
     false, 4.5, cmdline::range(1., 1000.));
   parser.add<double>("accuracy", 'e', "accuracy of the method", false, 0.01);
   parser.add<int>("itersLimit", 'l', "limit of iterations for the method", false, 2000);
+  parser.add<std::string>("outFile", 'f', "name of the file to write solution",
+    false, "solution.csv");
+  parser.add("saveSolution", 's', "determines whether the method will "
+    "save solution into a .csv file");
   parser.parse_check(argc, argv);
 
   MCOProblem problem;
@@ -30,15 +57,20 @@ int main(int argc, const char** argv)
     parser.get<int>("threadsNum"),
     parser.get<int>("itersLimit")));
   solver.SetProblem(problem);
+
+  auto start = std::chrono::system_clock::now();
   solver.Solve();
   auto solution = solver.GetWeakOptimalPoints();
+  auto end = std::chrono::system_clock::now();
+
+  std::chrono::duration<double> elapsed_seconds = end - start;
+  std::cout << "Time elapsed: " << elapsed_seconds.count() << "s\n";
 
   std::cout << "Iterations performed: " << solver.GetIterationsNumber() << std::endl;
 
-  for(auto& x : solution)
-  {
-    std::cout << x.y[0] << "\n";
-  }
+  if(parser.exist("saveSolution"))
+    saveOptimalPoints(parser.get<std::string>("outFile"), solution,
+      problem.GetDimension(), problem.GetCriterionsNumber());
 
   return 0;
 }
