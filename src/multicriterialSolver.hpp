@@ -12,12 +12,14 @@ struct SolverParameters
   unsigned numThreads;
   unsigned iterationsLimit;
   unsigned evloventTightness = 12;
+  int localMix;
   bool verbose = false;
 
   SolverParameters() {}
   SolverParameters(double _eps, double _r,
-      unsigned _numThreads, unsigned _itersLimit) :
-        eps(_eps), r(_r), numThreads(_numThreads), iterationsLimit(_itersLimit)
+      unsigned _numThreads, unsigned _itersLimit, int _localMix = 0) :
+        eps(_eps), r(_r), numThreads(_numThreads), iterationsLimit(_itersLimit),
+        localMix(_localMix)
   {}
 };
 
@@ -35,16 +37,20 @@ protected:
   bool mNeedFullRecalc;
   unsigned mIterationsCounter;
   unsigned mNumberOfTrials;
+  const double localOffset = pow(1.5, -15);
 
   void InitDataStructures();
   void FirstIteration();
   void UpdateH(const Trial& left, const Trial& right);
   double ComputeH(const Trial& x1, const Trial& x2);
-  void RecalcZ();
+  void RecalcZandR();
   void InsertNextPoints();
   void ClearDataStructures();
   void CalculateNextPoints();
   bool CheckStopCondition() const;
+  bool IsLocalIteration() const;
+  double CalculateR(const Interval&) const;
+  double CalculateLocalR(const Interval&, double) const;
 
 public:
 

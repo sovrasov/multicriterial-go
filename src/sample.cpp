@@ -38,6 +38,7 @@ int main(int argc, const char** argv)
   parser.add<double>("accuracy", 'e', "accuracy of the method", false, 0.01);
   parser.add<int>("itersLimit", 'l', "limit of iterations for the method", false, 2000);
   parser.add<int>("dim", 'd', "test problem dimension (will be set if supported)", false, 2);
+  parser.add<int>("localMix", 'm', "local mix parameter", false, 0);
   parser.add<std::string>("outFile", 'f', "name of the file to write solution",
     false, "solution.csv");
   parser.add<std::string>("probName", 'n', "name of the test problem",
@@ -58,7 +59,8 @@ int main(int argc, const char** argv)
   solver.SetParameters(SolverParameters(parser.get<double>("accuracy"),
     parser.get<double>("reliability"),
     parser.get<int>("threadsNum"),
-    parser.get<int>("itersLimit")));
+    parser.get<int>("itersLimit"),
+    parser.get<int>("localMix")));
   solver.SetProblem(problem);
 
   auto start = std::chrono::system_clock::now();

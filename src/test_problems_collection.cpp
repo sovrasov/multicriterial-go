@@ -49,7 +49,7 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
       [dimension](const double* y) -> double {
         double val = 0.;
         for(int i = 0; i < dimension - 1; i++)
-          val -= 10.*exp(-0.2*sqrt(y[i]*y[i] + y[i + 1]*y[i + 1]));
+          val -= 10.*exp(-0.2*hypot(y[i], y[i + 1]));
         return val;
       }
     );

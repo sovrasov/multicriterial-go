@@ -40,12 +40,12 @@ void MCOSolver::Solve()
   bool needStop = false;
   InitDataStructures();
   FirstIteration();
-  RecalcZ();
+  RecalcZandR();
 
   do {
     CalculateNextPoints();
     InsertNextPoints();
-    RecalcZ();
+    RecalcZandR();
     needStop = CheckStopCondition();
     mIterationsCounter++;
   } while(mIterationsCounter < mParameters.iterationsLimit && !needStop);
@@ -99,9 +99,10 @@ void MCOSolver::UpdateH(const Trial& left, const Trial& right)
   }
 }
 
-void MCOSolver::RecalcZ()
+void MCOSolver::RecalcZandR()
 {
   mNextIntervals.clear();
+  bool isLocal = IsLocalIteration();
   for(size_t i = 0; i < mSearchData.size(); i++)
   {
     if(!mNeedFullRecalc)
@@ -116,15 +117,30 @@ void MCOSolver::RecalcZ()
         mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
     }
 
-    if(i > 0)
+    if(i > 0 && !isLocal)
     {
       Interval currentInt(mSearchData[i - 1], mSearchData[i]);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
-      currentInt.R = currentInt.delta + pow((currentInt.pr.h - currentInt.pl.h) / mParameters.r, 2) / currentInt.delta -
-          2.*(currentInt.pr.h + currentInt.pl.h) / mParameters.r;
+      currentInt.R = CalculateR(currentInt);
       mNextIntervals.pushWithPriority(currentInt);
     }
   }
+
+  if(isLocal)
+  {
+    double zOpt = std::numeric_limits<double>::max();
+    for(size_t i = 0; i < mSearchData.size(); i++)
+      zOpt = fmin(zOpt, mSearchData[i].h);
+
+    for(size_t i = 1; i < mSearchData.size(); i++)
+    {
+      Interval currentInt(mSearchData[i - 1], mSearchData[i]);
+      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
+      currentInt.R = CalculateLocalR(currentInt, zOpt);
+      mNextIntervals.pushWithPriority(currentInt);
+    }
+  }
+
   mNeedFullRecalc = false;
 }
 
@@ -212,4 +228,45 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
 int MCOSolver::GetIterationsNumber() const
 {
   return mIterationsCounter;
+}
+
+bool MCOSolver::IsLocalIteration() const
+{
+  if(mIterationsCounter < 100)
+    return false;
+
+  bool isLocal = false;
+
+  if (mParameters.localMix > 0) {
+    int localMixParameter = mParameters.localMix + 1;
+
+    if (mIterationsCounter % localMixParameter != 0)
+      isLocal = false;
+    else
+      isLocal = true;
+  }
+  else if (mParameters.localMix < 0) {
+    int localMixParameter = -mParameters.localMix;
+    localMixParameter++;
+
+    if (mIterationsCounter % localMixParameter != 0)
+      isLocal = true;
+    else
+      isLocal = false;
+  }
+  else //mParameters.localMix == 0
+    isLocal = false;
+
+  return isLocal;
+}
+
+double MCOSolver::CalculateR(const Interval& i) const
+{
+  return i.delta + pow((i.pr.h - i.pl.h) / mParameters.r, 2) / i.delta -
+      2.*(i.pr.h + i.pl.h) / mParameters.r;
+}
+
+double MCOSolver::CalculateLocalR(const Interval& i, double minH) const
+{
+  return CalculateR(i) / (sqrt((i.pr.h - minH)*(i.pl.h - minH)) + localOffset);
 }
