@@ -101,6 +101,20 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
     );
     problem.SetDomain(2, {-M_PI, -M_PI}, {M_PI, M_PI});
   }
+  if(name == "strongin")
+  {
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return fmin(hypot(y[0], y[1]) + .5, hypot(y[0] - 1.5, y[1] + 1.5));
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return hypot(y[0] + .5, y[1] - .5);
+      }
+    );
+    problem.SetDomain(2, {-1., -2.}, {2., 1.});
+  }
 
   return problem;
 }

@@ -72,6 +72,7 @@ int main(int argc, const char** argv)
   std::cout << "Time elapsed: " << elapsed_seconds.count() << "s\n";
 
   std::cout << "Iterations performed: " << solver.GetIterationsNumber() << std::endl;
+  std::cout << "Number of weak optimal points: " << solution.size() << std::endl;
 
   if(parser.exist("saveSolution"))
     saveOptimalPoints(parser.get<std::string>("outFile"), solution,
