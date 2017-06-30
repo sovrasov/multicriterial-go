@@ -115,6 +115,21 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
     );
     problem.SetDomain(2, {-1., -2.}, {2., 1.});
   }
+  if(name == "oka2")
+  {
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return y[0];
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return 1 - pow((y[0] + M_PI)/ (2*M_PI), 2) +
+          cbrt(fabs(y[1] - 5*cos(y[0]))) + cbrt(fabs(y[2] - 5*sin(y[1])));
+      }
+    );
+    problem.SetDomain(3, {-M_PI, -5, -5}, {M_PI, 5., 5.});
+  }
 
   return problem;
 }
