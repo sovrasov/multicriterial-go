@@ -37,7 +37,7 @@ protected:
   bool mNeedFullRecalc;
   unsigned mIterationsCounter;
   unsigned mNumberOfTrials;
-  const double localOffset = pow(1.5, -15);
+  const double mLocalOffset;
 
   void InitDataStructures();
   void FirstIteration();
@@ -53,6 +53,7 @@ protected:
   double CalculateLocalR(const Interval&, double) const;
 
 public:
+  MCOSolver();
 
   void SetParameters(const SolverParameters& params);
   void SetProblem(const MCOProblem& problem);

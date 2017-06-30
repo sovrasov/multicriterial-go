@@ -25,6 +25,8 @@ namespace
   }
 }
 
+MCOSolver::MCOSolver() : mLocalOffset(pow(1.5, -15)) {}
+
 void MCOSolver::SetParameters(const SolverParameters& params)
 {
   mParameters = params;
@@ -268,5 +270,5 @@ double MCOSolver::CalculateR(const Interval& i) const
 
 double MCOSolver::CalculateLocalR(const Interval& i, double minH) const
 {
-  return CalculateR(i) / (sqrt((i.pr.h - minH)*(i.pl.h - minH)) + localOffset);
+  return CalculateR(i) / (sqrt((i.pr.h - minH)*(i.pl.h - minH)) + mLocalOffset);
 }
