@@ -15,7 +15,7 @@ protected:
   int mDimension;
   int mTightness;
 
-  double mRho;
+  std::vector<double> mRho;
   std::vector<double> mShiftScalars;
 
   bool mIsInitialized;
