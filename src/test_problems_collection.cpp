@@ -4,6 +4,23 @@
 #endif
 #include <math.h>
 
+namespace
+{
+  double compute_load(int complexity = 1000)
+  {
+    double value = 0.;
+
+    for (int i = 0; i < complexity * 10; i++)
+    {
+      double a1 = fma(value, 2., value + 1.);
+      double a2 = fma(value, 1., a1);
+      value = a2 - a1;
+    }
+
+    return value + 1.;
+  }
+}
+
 MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
 {
   MCOProblem problem;
@@ -91,13 +108,19 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
     double A2 = 1.5*sin(1.) - cos(1.) + 2.*sin(2.) - 0.5*cos(2.);
     problem.AddCriterion(
       [A1, A2](const double* y) -> double {
+        double dummy = compute_load();
+        double dummy2 = compute_load();
         double B1 = 0.5*sin(y[0]) - 2.*cos(y[0]) + sin(y[1]) - 1.5*cos(y[1]);
         double B2 = 1.5*sin(y[0]) - cos(y[0]) + 2.*sin(y[1]) - 0.5*cos(y[1]);
-        return 1 + (A1 - B1)*(A1 - B1) + (A2 - B2)*(A2 - B2);
+        return dummy*(1 + (A1 - B1)*(A1 - B1) + (A2 - B2)*(A2 - B2)) / dummy2;
        }
     );
     problem.AddCriterion(
-      [](const double* y) -> double { return (y[0] + 3)*(y[0] + 3) + (y[1] + 1)*(y[1] + 1);  }
+      [](const double* y) -> double {
+        double dummy = compute_load();
+        double dummy2 = compute_load();
+        return dummy*(y[0] + 3)*(y[0] + 3) + (y[1] + 1)*(y[1] + 1) / dummy2;
+      }
     );
     problem.SetDomain(2, {-M_PI, -M_PI}, {M_PI, M_PI});
   }
