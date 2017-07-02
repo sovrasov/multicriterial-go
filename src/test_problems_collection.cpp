@@ -2,7 +2,7 @@
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-#include <cmath>
+#include <math.h>
 
 MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
 {

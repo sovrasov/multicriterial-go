@@ -171,9 +171,15 @@ void MCOSolver::InsertNextPoints()
 
 void MCOSolver::CalculateNextPoints()
 {
-  for(size_t i = 0; i < mParameters.numThreads; i++)
+#pragma omp parallel for num_threads(mParameters.numThreads)
+  for(int i = 0; i < (int)mParameters.numThreads; i++)
   {
-    Interval nextInterval = mNextIntervals.pop();
+    Interval nextInterval;
+#pragma omp critical
+    {
+      nextInterval = mNextIntervals.pop();
+    }
+
     double dh = nextInterval.pr.h - nextInterval.pl.h;
     mNextPoints[i].x = 0.5 * (nextInterval.pr.x + nextInterval.pl.x) -
       0.5*((dh > 0.) ? 1. : -1.) * pow(fabs(dh), mProblem.GetDimension()) / mParameters.r;
@@ -185,8 +191,11 @@ void MCOSolver::CalculateNextPoints()
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
       mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
 
-    UpdateH(mNextPoints[i], nextInterval.pr);
-    UpdateH(nextInterval.pl, mNextPoints[i]);
+#pragma omp critical
+    {
+      UpdateH(mNextPoints[i], nextInterval.pr);
+      UpdateH(nextInterval.pl, mNextPoints[i]);
+    }
   }
 }
 
