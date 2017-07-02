@@ -6,5 +6,5 @@
 class TestMCOProblems
 {
 public:
-  static MCOProblem create(const std::string& name, int dimension = -1);
+  static MCOProblem create(const std::string& name, int dimension = -1, bool useComputeLoad = false);
 };

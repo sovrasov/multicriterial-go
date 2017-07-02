@@ -45,10 +45,11 @@ int main(int argc, const char** argv)
     false, "fonseca");
   parser.add("saveSolution", 's', "determines whether the method will "
     "save solution into a .csv file");
+  parser.add("computeLoad", 'c', "make test functions hard to calculate (for experiments)");
   parser.parse_check(argc, argv);
 
   MCOProblem problem = TestMCOProblems::create(
-    parser.get<std::string>("probName"), parser.get<int>("dim"));
+    parser.get<std::string>("probName"), parser.get<int>("dim"), parser.exist("computeLoad"));
   if(problem.GetCriterionsNumber() == 0)
   {
     std::cerr << "Wrong test problem name\n";

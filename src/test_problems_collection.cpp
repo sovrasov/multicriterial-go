@@ -6,11 +6,11 @@
 
 namespace
 {
-  double compute_load(int complexity = 1000)
+  double compute_load(int complexity = 100)
   {
     double value = 0.;
 
-    for (int i = 0; i < complexity * 10; i++)
+    for (int i = 0; i < complexity * 1000; i++)
     {
       double a1 = fma(value, 2., value + 1.);
       double a2 = fma(value, 1., a1);
@@ -21,7 +21,7 @@ namespace
   }
 }
 
-MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
+MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool useComputeLoad)
 {
   MCOProblem problem;
   if(name == "schaffer")
@@ -39,21 +39,25 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
     if(dimension == -1) dimension = 2;
 
     problem.AddCriterion(
-      [dimension](const double* y) -> double {
+      [dimension, useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
         double shift = 1. / sqrt(dimension);
         double eArg = 0;
         for(int i = 0; i < dimension; i++)
           eArg -= pow(y[i] - shift, 2);
-        return 1 - exp(eArg);
+        return dummy*(1 - exp(eArg)) / dummy2;
       }
     );
     problem.AddCriterion(
-      [dimension](const double* y) -> double {
+      [dimension, useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
         double shift = 1. / sqrt(dimension);
         double eArg = 0;
         for(int i = 0; i < dimension; i++)
           eArg -= pow(y[i] + shift, 2);
-        return 1 - exp(eArg);
+        return dummy*(1 - exp(eArg)) / dummy2;
       }
     );
     std::vector<double> lb(dimension, -4.0);
@@ -107,18 +111,18 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
     double A1 = 0.5*sin(1.) - 2.*cos(1) + sin(2.) - 1.5*cos(2.);
     double A2 = 1.5*sin(1.) - cos(1.) + 2.*sin(2.) - 0.5*cos(2.);
     problem.AddCriterion(
-      [A1, A2](const double* y) -> double {
-        double dummy = compute_load();
-        double dummy2 = compute_load();
+      [A1, A2, useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
         double B1 = 0.5*sin(y[0]) - 2.*cos(y[0]) + sin(y[1]) - 1.5*cos(y[1]);
         double B2 = 1.5*sin(y[0]) - cos(y[0]) + 2.*sin(y[1]) - 0.5*cos(y[1]);
         return dummy*(1 + (A1 - B1)*(A1 - B1) + (A2 - B2)*(A2 - B2)) / dummy2;
        }
     );
     problem.AddCriterion(
-      [](const double* y) -> double {
-        double dummy = compute_load();
-        double dummy2 = compute_load();
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
         return dummy*(y[0] + 3)*(y[0] + 3) + (y[1] + 1)*(y[1] + 1) / dummy2;
       }
     );
@@ -127,13 +131,17 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension)
   if(name == "strongin")
   {
     problem.AddCriterion(
-      [](const double* y) -> double {
-        return fmin(hypot(y[0], y[1]) + .5, hypot(y[0] - 1.5, y[1] + 1.5));
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
+        return dummy*fmin(hypot(y[0], y[1]) + .5, hypot(y[0] - 1.5, y[1] + 1.5)) / dummy2;
       }
     );
     problem.AddCriterion(
-      [](const double* y) -> double {
-        return hypot(y[0] + .5, y[1] - .5);
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
+        return dummy*hypot(y[0] + .5, y[1] - .5) / dummy2;
       }
     );
     problem.SetDomain(2, {-1., -2.}, {2., 1.});
