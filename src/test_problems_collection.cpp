@@ -161,7 +161,6 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(3, {-M_PI, -5, -5}, {M_PI, 5., 5.});
   }
-
   if(name == "oka1")
   {
     const double cos_coeff = cos(M_PI / 12);
@@ -182,6 +181,20 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(2, {6*sin_coeff, -2*M_PI*sin_coeff},
        {6*sin_coeff + 2*M_PI*cos_coeff, 6*cos_coeff});
+  }
+  if(name == "evtushenko")
+  {
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return (y[0] - 1)*y[1]*y[1] + 1;
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return y[1];
+      }
+    );
+    problem.SetDomain(2, {0, 0}, {1, 1});
   }
 
   return problem;
