@@ -32,10 +32,7 @@ def readPoints(fileName):
 
     return np.array(pointsY), np.array(pointsW)
 
-def main():
-
-    Y, W = readPoints(sys.argv[1])
-
+def drawPoints(Y, W, filename, ext):
     if len(W[0]) == 2:
         plt.xlabel(r'$f_1$')
         plt.ylabel(r'$f_2$')
@@ -43,7 +40,7 @@ def main():
         plt.plot(W[:,0], W[:,1], 'ro')
 
         plt.grid()
-        plt.savefig(sys.argv[2] + '.png', format = 'png', dpi = 200)
+        plt.savefig(filename + '.' + ext, format = ext, dpi = 200)
         plt.clf()
 
     if len(Y[0]) == 2:
@@ -53,8 +50,13 @@ def main():
         plt.plot(Y[:,0], Y[:,1], 'go')
 
         plt.grid()
-        plt.savefig(sys.argv[2] + '_points.png', format = 'png', dpi = 200)
+        plt.savefig(filename + '_points.' + ext, format = ext, dpi = 200)
         plt.clf()
+
+def main():
+
+    Y, W = readPoints(sys.argv[1])
+    drawPoints(Y, W, sys.argv[2], 'png')
 
 if __name__ == '__main__':
     main()
