@@ -162,5 +162,27 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     problem.SetDomain(3, {-M_PI, -5, -5}, {M_PI, 5., 5.});
   }
 
+  if(name == "oka1")
+  {
+    const double cos_coeff = cos(M_PI / 12);
+    const double sin_coeff = sin(M_PI / 12);
+
+    problem.AddCriterion(
+      [cos_coeff, sin_coeff](const double* y) -> double {
+        return cos_coeff*y[0] - sin_coeff*y[1];
+      }
+    );
+    problem.AddCriterion(
+      [cos_coeff, sin_coeff](const double* y) -> double {
+        const double x1 = cos_coeff*y[0] - sin_coeff*y[1];
+        const double x2 = sin_coeff*y[0] + cos_coeff*y[1];
+
+        return sqrt(2*M_PI) - sqrt(fabs(x1)) + 2*cbrt(fabs(x2 - 3*cos(x1) -3.));
+      }
+    );
+    problem.SetDomain(2, {6*sin_coeff, -2*M_PI*sin_coeff},
+       {6*sin_coeff + 2*M_PI*cos_coeff, 6*cos_coeff});
+  }
+
   return problem;
 }
