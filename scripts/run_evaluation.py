@@ -20,8 +20,15 @@ def run_command(cmd):
 
 def main():
 
+    tmp_filename = 'tmp.csv'
     problems = ['strongin', 'fonseca', 'poloni', 'schaffer2']
-    common_params = ' -r 4 -e 0.01 -m 4 -s -f tmp.csv -l 4000'
+    problems_params_dict = {problem: '' for problem in problems}
+    problems_params_dict['schaffer2'] = ' -e 0.001 '
+    problems_params_dict['poloni'] = ' -l 4000 '
+    problems_params_dict['strongin'] = ' '
+
+    common_params = ' -r 4.5 -m 4 -s -f ' + tmp_filename + ' '
+
     p_values = [1, 2, 4, 8, 16]
     times = [[] for i in range(len(problems))]
     iters = [[] for i in range(len(problems))]
@@ -29,14 +36,15 @@ def main():
     for i, problem in enumerate(problems):
         for p in p_values:
             output = run_command('./multicriterial_sample ' +
-            ' -p ' + str(p) + common_params + ' -n ' + problem)
-            #print(output)
-            trials = int(re.findall('Iterations performed: (\d+)' , output)[0])
-            time = float(re.findall('Time elapsed: (\d+\.\d+)' , output)[0])
+            ' -p ' + str(p) + common_params + ' -n ' + problem + problems_params_dict[problem])
+
+            trials = int(re.findall('Iterations performed: (\d+)', output)[0])
+            time = float(re.findall('Time elapsed: (\d+\.\d+)', output)[0])
             times[i].append(time)
             iters[i].append(trials)
-
-    for i, problem in enumerate(problems):
+            if p is 1:
+                Y, W = readPoints(tmp_filename)
+                drawPoints(Y, W, problem, 'pdf')
         print('Problem: {}'.format(problem))
         current_times = times[i]
         current_iters = iters[i]
@@ -45,7 +53,7 @@ def main():
         for j, p in enumerate(p_values):
             if p is not 1:
                 print('p = {} speedup time {} iters {}'.format(p, current_times[0] / current_times[j],
-                    float(current_iters[0]) / current_iters[j]))
+                float(current_iters[0]) / current_iters[j]))
         print('--------------------------')
 
 if __name__ == '__main__':
