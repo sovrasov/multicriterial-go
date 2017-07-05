@@ -196,6 +196,21 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(2, {0, 0}, {1, 1});
   }
+  if(name == "mop6")
+  {
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return y[0];
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        const double t = 1 + 10*y[1];
+        return t*(1 - pow(y[1] / t, 2) - y[0]* sin(8*M_PI*y[0]) / t);
+      }
+    );
+    problem.SetDomain(2, {0, 0}, {1, 1});
+  }
 
   return problem;
 }
