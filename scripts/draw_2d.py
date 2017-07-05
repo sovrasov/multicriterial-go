@@ -34,8 +34,10 @@ def readPoints(fileName):
 
 def drawPoints(Y, W, filename, ext):
     if len(W[0]) == 2:
-        plt.xlabel(r'$f_1$')
-        plt.ylabel(r'$f_2$')
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.xlabel(r'$f_1$', fontsize=20)
+        plt.ylabel(r'$f_2$', fontsize=20)
 
         plt.plot(W[:,0], W[:,1], 'ro')
 
@@ -44,8 +46,10 @@ def drawPoints(Y, W, filename, ext):
         plt.clf()
 
     if len(Y[0]) == 2:
-        plt.xlabel(r'$y_1$')
-        plt.ylabel(r'$y_2$')
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.xlabel(r'$y_1$', fontsize=20)
+        plt.ylabel(r'$y_2$', fontsize=20)
 
         plt.plot(Y[:,0], Y[:,1], 'go')
 
