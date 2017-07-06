@@ -3,13 +3,14 @@
 
 import sys
 import re
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
 import subprocess
-from draw_2d import readPoints, drawPoints
 
-matplotlib.style.use('classic')
+if not (len(sys.argv) is 2):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib
+    from draw_2d import readPoints, drawPoints
+    matplotlib.style.use('classic')
 
 def run_command(cmd):
     PIPE = subprocess.PIPE
@@ -26,7 +27,7 @@ def main():
     problems_params_dict = {problem: '' for problem in problems}
     problems_params_dict['schaffer2'] = ' -e 0.001 '
     problems_params_dict['poloni'] = ' -l 4000 '
-    #problems_params_dict['fonseca'] = ' -l 10000 -d 3'
+    problems_params_dict['fonseca'] = ' -l 10000 -d 3'
     problems_params_dict['strongin'] = ' '
 
     common_params = ' -r 4.5 -m 4 -s -f ' + tmp_filename + ' '
@@ -47,7 +48,7 @@ def main():
             iters[i].append(trials)
             s_sizes[i].append(int(re.findall('Number of weak optimal points: (\d+)', output)[0]))
 
-            if p is 1:
+            if p is 1 and not (len(sys.argv) is 2):
                 Y, W = readPoints(tmp_filename)
                 drawPoints(Y, W, problem, 'pdf')
         print('Problem: {}'.format(problem))
