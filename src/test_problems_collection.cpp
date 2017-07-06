@@ -89,8 +89,11 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
   if(name == "schaffer2")
   {
     problem.AddCriterion(
-      [](const double* y) -> double {
-        double x = y[0];
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
+
+        double x = dummy*y[0] / dummy2;
         if(x <= 1)
           return -x;
         else if(x <= 3)
@@ -102,7 +105,11 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
        }
     );
     problem.AddCriterion(
-      [](const double* y) -> double { return (y[0] - 5)*(y[0] - 5);  }
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
+        return dummy*(y[0] - 5)*(y[0] - 5) / dummy2;
+       }
     );
     problem.SetDomain(1, {-5.}, {10.});
   }
