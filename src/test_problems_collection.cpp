@@ -218,6 +218,27 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(2, {0, 0}, {1, 1});
   }
+  if(name == "viennet")
+  {
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        const double sqr = y[0]*y[0] + y[1]*y[1];
+        return 0.5*sqr + sin(sqr);
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        return pow( 3*y[0] - 2*y[1] + 4, 2) / 8 + pow(y[0] - y[1] + 1, 2) / 27 + 15;
+      }
+    );
+    problem.AddCriterion(
+      [](const double* y) -> double {
+        const double sqr = y[0]*y[0] + y[1]*y[1];
+        return 1. / (sqr + 1) - 1.1*exp(-sqr);
+      }
+    );
+    problem.SetDomain(2, {-3, -3}, {3, 3});
+  }
 
   return problem;
 }
