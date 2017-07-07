@@ -4,6 +4,7 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 
 matplotlib.style.use('classic')
@@ -44,6 +45,14 @@ def drawPoints(Y, W, filename, ext):
         plt.grid()
         plt.savefig(filename + '.' + ext, format = ext, dpi = 200)
         plt.clf()
+    elif len(W[0]) == 3:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(W[:,0], W[:,1], W[:,2], c='r', marker='o')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        plt.show()
 
     if len(Y[0]) == 2:
         plt.xticks(fontsize=15)
