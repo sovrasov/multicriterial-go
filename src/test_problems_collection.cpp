@@ -221,14 +221,18 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
   if(name == "viennet")
   {
     problem.AddCriterion(
-      [](const double* y) -> double {
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
         const double sqr = y[0]*y[0] + y[1]*y[1];
-        return 0.5*sqr + sin(sqr);
+        return dummy*(0.5*sqr + sin(sqr)) / dummy2;
       }
     );
     problem.AddCriterion(
-      [](const double* y) -> double {
-        return pow( 3*y[0] - 2*y[1] + 4, 2) / 8 + pow(y[0] - y[1] + 1, 2) / 27 + 15;
+      [useComputeLoad](const double* y) -> double {
+        double dummy = useComputeLoad ? compute_load() : 1.;
+        double dummy2 = useComputeLoad ? compute_load() : 1.;
+        return dummy*(pow( 3*y[0] - 2*y[1] + 4, 2) / 8 + pow(y[0] - y[1] + 1, 2) / 27 + 15) / dummy2;
       }
     );
     problem.AddCriterion(

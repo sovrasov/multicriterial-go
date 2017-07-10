@@ -22,13 +22,14 @@ def run_command(cmd):
 def main():
 
     tmp_filename = 'tmp.csv'
-    problems = ['strongin', 'fonseca', 'poloni', 'schaffer2']
-    #problems = ['fonseca']
+    #problems = ['strongin', 'fonseca', 'poloni', 'viennet']
+    problems = ['viennet']
     problems_params_dict = {problem: '' for problem in problems}
     problems_params_dict['schaffer2'] = ' -e 0.001 '
     problems_params_dict['poloni'] = ' -l 4000 '
     problems_params_dict['fonseca'] = ' -l 10000 -d 3'
     problems_params_dict['strongin'] = ' '
+    problems_params_dict['viennet'] = ' -l 10000 '
 
     common_params = ' -r 4.5 -m 4 -s -f ' + tmp_filename + ' '
 
