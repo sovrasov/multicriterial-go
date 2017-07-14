@@ -15,14 +15,6 @@ namespace
 
     return true;
   }
-
-  template<typename T>
-  typename std::vector<T>::iterator
-    insert_sorted(std::vector<T> & vec, T const& item)
-  {
-    return vec.insert
-    (std::upper_bound(vec.begin(), vec.end(), item), item);
-  }
 }
 
 MCOSolver::MCOSolver() : mLocalOffset(pow(1.5, -15)) {}
@@ -60,7 +52,6 @@ void MCOSolver::InitDataStructures()
   double leftDomainBound[solverMaxDim], rightDomainBound[solverMaxDim];
   mProblem.GetBounds(leftDomainBound, rightDomainBound);
   mEvolvent = Evolvent(mProblem.GetDimension(), mParameters.evloventTightness, leftDomainBound, rightDomainBound);
-  mSearchData.reserve(mParameters.iterationsLimit);
   mNextPoints.resize(mParameters.numThreads);
   mNextIntervals.resize(mParameters.numThreads);
 
@@ -72,13 +63,16 @@ void MCOSolver::FirstIteration()
 {
   for(size_t i = 0; i <= mParameters.numThreads; i++)
   {
-    mSearchData.emplace_back((double)i / mParameters.numThreads);
-    mEvolvent.GetImage(mSearchData.back().x, mSearchData.back().y);
+    auto insertedIt = mSearchData.emplace((double)i / mParameters.numThreads).first;
+    mEvolvent.GetImage(insertedIt->x, insertedIt->y);
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mSearchData.back().z[j] = mProblem.CalculateFunction(j, mSearchData.back().y);
+      insertedIt->z[j] = mProblem.CalculateFunction(j, insertedIt->y);
 
     if(i > 0)
-      UpdateH(mSearchData[i - 1], mSearchData[i]);
+    {
+      auto rightPoint = insertedIt--;
+      UpdateH(*insertedIt, *rightPoint);
+    }
   }
 
   mNeedFullRecalc = true;
@@ -105,23 +99,25 @@ void MCOSolver::RecalcZandR()
 {
   mNextIntervals.clear();
   bool isLocal = IsLocalIteration();
-  for(size_t i = 0; i < mSearchData.size(); i++)
+  for(auto trial = mSearchData.begin(); trial != mSearchData.end(); ++trial)
   {
     if(!mNeedFullRecalc)
     {
       for (size_t j = 0; j < mNextPoints.size(); j++)
-        mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mNextPoints[j]));
+        trial->h = fmax(trial->h, ComputeH(*trial, mNextPoints[j]));
     }
     else
     {
-      mSearchData[i].h = std::numeric_limits<double>::min();
-      for(size_t j = 0; j < mSearchData.size(); j++)
-        mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
+      trial->h = std::numeric_limits<double>::min();
+      for(auto otherTrial = mSearchData.begin(); otherTrial != mSearchData.end(); ++otherTrial)
+        trial->h = fmax(trial->h, ComputeH(*trial, *otherTrial));
     }
 
-    if(i > 0 && !isLocal)
+    if(trial != mSearchData.begin() && !isLocal)
     {
-      Interval currentInt(mSearchData[i - 1], mSearchData[i]);
+      auto leftTrial = trial;
+      auto rightTrial = leftTrial--;
+      Interval currentInt(*leftTrial, *rightTrial);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
       currentInt.R = CalculateR(currentInt);
       mNextIntervals.pushWithPriority(currentInt);
@@ -131,12 +127,15 @@ void MCOSolver::RecalcZandR()
   if(isLocal)
   {
     double zOpt = std::numeric_limits<double>::max();
-    for(size_t i = 0; i < mSearchData.size(); i++)
-      zOpt = fmin(zOpt, mSearchData[i].h);
+    for(const auto& point : mSearchData)
+      zOpt = fmin(zOpt, point.h);
 
-    for(size_t i = 1; i < mSearchData.size(); i++)
+    auto trial = mSearchData.begin();
+    for(++trial; trial != mSearchData.end(); ++trial)
     {
-      Interval currentInt(mSearchData[i - 1], mSearchData[i]);
+      auto leftTrial = trial;
+      auto rightTrial = leftTrial--;
+      Interval currentInt(*leftTrial, *rightTrial);
       currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
       currentInt.R = CalculateLocalR(currentInt, zOpt);
       mNextIntervals.pushWithPriority(currentInt);
@@ -163,9 +162,9 @@ void MCOSolver::InsertNextPoints()
   for(size_t i = 0; i < mNextPoints.size(); i++)
   {
     mNextPoints[i].h = ComputeH(mNextPoints[i], mNextPoints[i]);
-    for (size_t j = 0; j < mSearchData.size(); j++)
-      mNextPoints[i].h = fmax(mNextPoints[i].h, ComputeH(mNextPoints[i], mSearchData[j]));
-    insert_sorted(mSearchData, mNextPoints[i]);
+    for(const auto& point : mSearchData)
+      mNextPoints[i].h = fmax(mNextPoints[i].h, ComputeH(mNextPoints[i], point));
+    mSearchData.insert(mNextPoints[i]);
   }
 }
 
@@ -218,19 +217,19 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
 {
   std::vector<Trial> optTrials;
 
-  for(size_t i = 0; i < mSearchData.size(); i++)
+  for(const auto& point1 : mSearchData)
   {
     bool isWeakOptimal = true;
-    for(size_t j = 0; j < mSearchData.size(); j++)
+    for(const auto& point2 : mSearchData)
     {
-      if(i != j)
+      if(point1.x != point2.x)
       {
-        if(isVectorLess(mSearchData[j].z, mSearchData[i].z, mProblem.GetCriterionsNumber()))
+        if(isVectorLess(point2.z, point1.z, mProblem.GetCriterionsNumber()))
           isWeakOptimal = false;
       }
     }
     if(isWeakOptimal)
-      optTrials.push_back(mSearchData[i]);
+      optTrials.push_back(point1);
   }
 
   return optTrials;

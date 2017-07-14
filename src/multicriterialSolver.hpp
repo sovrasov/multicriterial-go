@@ -4,6 +4,7 @@
 #include "mcoProblem.hpp"
 #include "evolvent.hpp"
 #include "queue.hpp"
+#include <set>
 
 struct SolverParameters
 {
@@ -28,7 +29,7 @@ class MCOSolver
 protected:
 
   Evolvent mEvolvent;
-  std::vector<Trial> mSearchData;
+  std::set<Trial> mSearchData;
   std::vector<Trial> mNextPoints;
   std::vector<double> mHEstimations;
   IntervalsQueue mNextIntervals;

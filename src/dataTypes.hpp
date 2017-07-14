@@ -6,9 +6,9 @@ const unsigned solverMaxCriterions = 5;
 struct Trial
 {
   double x;
-  double y[solverMaxDim];
-  double h;
-  double z[solverMaxCriterions];
+  mutable double y[solverMaxDim];
+  mutable double h;
+  mutable double z[solverMaxCriterions];
   Trial() {}
   Trial(double _x) : x(_x){}
 };
