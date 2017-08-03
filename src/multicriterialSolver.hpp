@@ -45,6 +45,8 @@ protected:
   void MakeTrial(Trial& trial);
   void FirstIteration();
   void UpdateH(const Trial& left, const Trial& right);
+  void UpdateZ(const Trial& left, const Trial& right);
+  void CalculateConstsEstimationsAfterInsert(size_t idx, bool searchRight = true);
   double ComputeH(const Trial& x1, const Trial& x2);
   void RecalcZandR();
   void InsertNextPoints();
@@ -53,7 +55,7 @@ protected:
   bool CheckStopCondition() const;
   bool IsLocalIteration() const;
   double CalculateR(const Interval&) const;
-  double CalculateLocalR(const Interval&, double) const;
+  double CalculateLocalR(const Interval&) const;
 
 public:
   MCOSolver();
