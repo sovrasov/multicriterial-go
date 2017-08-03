@@ -1,4 +1,4 @@
-﻿#include "multicriterialSolver.hpp"
+#include "multicriterialSolver.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -75,7 +75,7 @@ void MCOSolver::FirstIteration()
     mSearchData.emplace_back((double)i / mParameters.numThreads);
     mEvolvent.GetImage(mSearchData.back().x, mSearchData.back().y);
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mSearchData.back().z[j] = mProblem.CalculateFunction(j, mSearchData.back().y);
+      mSearchData.back().z[j] = mProblem.CalculateCriterion(j, mSearchData.back().y);
 
     if(i > 0)
       UpdateH(mSearchData[i - 1], mSearchData[i]);
@@ -189,7 +189,7 @@ void MCOSolver::CalculateNextPoints()
 
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mNextPoints[i].z[j] = mProblem.CalculateFunction(j, mNextPoints[i].y);
+      mNextPoints[i].z[j] = mProblem.CalculateCriterion(j, mNextPoints[i].y);
 
 #pragma omp critical
     {

@@ -5,6 +5,11 @@ void MCOProblem::AddCriterion(const functionType& criterion)
   mCriterions.push_back(criterion);
 }
 
+void MCOProblem::AddConstraint(const functionType& constraint)
+{
+  mConstraints.push_back(constraint);
+}
+
 void MCOProblem::SetDomain(int dimension, const double* lb, const double* ub)
 {
   mDimension = dimension;
@@ -41,6 +46,11 @@ int MCOProblem::GetCriterionsNumber() const
   return mCriterions.size();
 }
 
+int MCOProblem::GetConstraintsNumber() const
+{
+  return mConstraints.size();
+}
+
 void MCOProblem::GetBounds(double* lb, double* ub) const
 {
   for(int i = 0; i < mDimension; i++)
@@ -50,7 +60,12 @@ void MCOProblem::GetBounds(double* lb, double* ub) const
   }
 }
 
-double MCOProblem::CalculateFunction(int fNumber, const double* y) const
+double MCOProblem::CalculateCriterion(int fNumber, const double* y) const
 {
   return mCriterions[fNumber](y);
+}
+
+double MCOProblem::CalculateConstraint(int fNumber, const double* y) const
+{
+  return mConstraints[fNumber](y);
 }
