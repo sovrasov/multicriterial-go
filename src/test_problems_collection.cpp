@@ -243,6 +243,31 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(2, {-3, -3}, {3, 3});
   }
+  if(name == "chakong")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return 2 + pow(y[0] - 2, 2) + pow(y[1] - 1, 2);
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return 9*y[0] - pow(y[1] - 1, 2);
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return y[0]*y[0] + y[1]*y[1] - 225;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return y[0] - 3*y[1] + 10;
+      }
+    );
+    problem.SetDomain(2, {-20, -20}, {20, 20});
+  }
+
 
   return problem;
 }
