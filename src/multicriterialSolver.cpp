@@ -64,8 +64,14 @@ void MCOSolver::InitDataStructures()
   mNextPoints.resize(mParameters.numThreads);
   mNextIntervals.resize(mParameters.numThreads);
 
+  mZEstimations.resize(mProblem.GetConstraintsNumber());
+  std::fill(mZEstimations.begin(), mZEstimations.end(), std::numeric_limits<double>::max());
+
   mHEstimations.resize(mProblem.GetCriterionsNumber());
   std::fill(mHEstimations.begin(), mHEstimations.end(), 1.0);
+
+  mMuEstimations.resize(mProblem.GetConstraintsNumber());
+  std::fill(mMuEstimations.begin(), mMuEstimations.end(), 1.0);
 }
 
 void MCOSolver::FirstIteration()
@@ -73,10 +79,7 @@ void MCOSolver::FirstIteration()
   for(size_t i = 0; i <= mParameters.numThreads; i++)
   {
     mSearchData.emplace_back((double)i / mParameters.numThreads);
-    mEvolvent.GetImage(mSearchData.back().x, mSearchData.back().y);
-    for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mSearchData.back().z[j] = mProblem.CalculateCriterion(j, mSearchData.back().y);
-
+    MakeTrial(mSearchData.back());
     if(i > 0)
       UpdateH(mSearchData[i - 1], mSearchData[i]);
   }
@@ -84,6 +87,31 @@ void MCOSolver::FirstIteration()
   mNeedFullRecalc = true;
   mIterationsCounter = 1;
   mNumberOfTrials = mParameters.numThreads + 1;
+}
+
+void MCOSolver::MakeTrial(Trial& trial)
+{
+  mEvolvent.GetImage(trial.x, trial.y);
+
+  trial.v = 0;
+  while(trial.v < mProblem.GetConstraintsNumber())
+  {
+    trial.g[trial.v] = mProblem.CalculateConstraint(trial.v, trial.y);
+    if(trial.g[trial.v] > 0)
+      break;
+    else
+      trial.v++;
+  }
+
+  if(trial.v < mProblem.GetConstraintsNumber())
+  {
+    trial.h = trial.g[trial.v] / mMuEstimations[trial.v];
+    mZEstimations[trial.v] = fmin(mZEstimations[trial.v], trial.g[trial.v]);
+  }
+
+  if(trial.v == mProblem.GetConstraintsNumber())
+    for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
+      trial.z[j] = mProblem.CalculateCriterion(j, trial.y);
 }
 
 void MCOSolver::UpdateH(const Trial& left, const Trial& right)
@@ -187,9 +215,7 @@ void MCOSolver::CalculateNextPoints()
     if (mNextPoints[i].x >= nextInterval.pr.x || mNextPoints[i].x <= nextInterval.pl.x)
       throw std::runtime_error("Point is outside of interval\n");
 
-    mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
-    for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
-      mNextPoints[i].z[j] = mProblem.CalculateCriterion(j, mNextPoints[i].y);
+    MakeTrial(mNextPoints[i]);
 
 #pragma omp critical
     {

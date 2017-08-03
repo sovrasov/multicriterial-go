@@ -48,7 +48,7 @@ Evolvent::Evolvent(int dimension, int tightness, double* lb, double* ub, MapType
   mIsInitialized = true;
 }
 
-void Evolvent::GetImage(double x, double y[])
+void Evolvent::GetImage(double x, double y[]) const
 {
   if(mDimension != 1)
     mapd(x, mTightness, y, mDimension, mMapKey);

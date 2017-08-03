@@ -31,6 +31,8 @@ protected:
   std::vector<Trial> mSearchData;
   std::vector<Trial> mNextPoints;
   std::vector<double> mHEstimations;
+  std::vector<double> mMuEstimations;
+  std::vector<double> mZEstimations;
   IntervalsQueue mNextIntervals;
   SolverParameters mParameters;
   MCOProblem mProblem;
@@ -40,6 +42,7 @@ protected:
   const double mLocalOffset;
 
   void InitDataStructures();
+  void MakeTrial(Trial& trial);
   void FirstIteration();
   void UpdateH(const Trial& left, const Trial& right);
   double ComputeH(const Trial& x1, const Trial& x2);
