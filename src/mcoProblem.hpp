@@ -10,7 +10,6 @@ protected:
   using functionType = std::function<double(const double*)>;
 
   int mDimension;
-  int mCriterionsNumber;
   std::vector<functionType> mCriterions;
   std::vector<functionType> mConstraints;
   std::vector<double> mLeftBound;
