@@ -81,7 +81,6 @@ void MCOSolver::FirstIteration()
     MakeTrial(mSearchData.back());
     if(i > 0)
       CalculateConstsEstimationsAfterInsert(i, false);
-      //UpdateH(mSearchData[i - 1], mSearchData[i]);
   }
 
   mNeedFullRecalc = true;
@@ -103,12 +102,6 @@ void MCOSolver::MakeTrial(Trial& trial)
       trial.v++;
   }
 
-  if(trial.v < mProblem.GetConstraintsNumber())
-  {
-    trial.h = trial.g[trial.v] / mMuEstimations[trial.v];
-    mZEstimations[trial.v] = fmin(mZEstimations[trial.v], trial.h);
-  }
-
   if(trial.v == mProblem.GetConstraintsNumber())
     for(int j = 0; j < mProblem.GetCriterionsNumber(); j++)
       trial.z[j] = mProblem.CalculateCriterion(j, trial.y);
@@ -117,37 +110,27 @@ void MCOSolver::MakeTrial(Trial& trial)
 void MCOSolver::CalculateConstsEstimationsAfterInsert(size_t idx, bool searchRight)
 {
   Trial& currentPoint = mSearchData[idx];
-  if(currentPoint.v < mProblem.GetConstraintsNumber()) //update Mu for constraints
+  int left_idx = idx - 1;
+  while(left_idx > 0 && mSearchData[left_idx].v != currentPoint.v)
+    left_idx--;
+  if(left_idx != (int)idx && mSearchData[left_idx].v == mSearchData[idx].v)
   {
-    int left_idx = idx - 1;
-    while(left_idx > 0 && mSearchData[left_idx].v != currentPoint.v)
-      left_idx--;
-    if(left_idx != (int)idx && mSearchData[left_idx].v == mSearchData[idx].v)
+    if(currentPoint.v < mProblem.GetConstraintsNumber())
       UpdateMu(mSearchData[left_idx], mSearchData[idx]);
-
-    if(searchRight)
-    {
-      size_t right_idx = idx + 1;
-      while(right_idx < mSearchData.size() - 1 && mSearchData[right_idx].v != currentPoint.v)
-        right_idx++;
-      if(right_idx != idx && mSearchData[right_idx].v == mSearchData[idx].v)
-        UpdateMu(mSearchData[idx], mSearchData[right_idx]);
-    }
-  }
-  else //update H for criterions
-  {
-    int left_idx = idx - 1;
-    while(left_idx > 0 && mSearchData[left_idx].v != currentPoint.v)
-      left_idx--;
-    if(left_idx != (int)idx && mSearchData[left_idx].v == mSearchData[idx].v)
+    else
       UpdateH(mSearchData[left_idx], mSearchData[idx]);
+  }
 
-    if(searchRight)
+  if(searchRight)
+  {
+    size_t right_idx = idx + 1;
+    while(right_idx < mSearchData.size() - 1 && mSearchData[right_idx].v != currentPoint.v)
+      right_idx++;
+    if(right_idx != idx && mSearchData[right_idx].v == mSearchData[idx].v)
     {
-      size_t right_idx = idx + 1;
-      while(right_idx < mSearchData.size() - 1 && mSearchData[right_idx].v != currentPoint.v)
-        right_idx++;
-      if(right_idx != idx && mSearchData[right_idx].v == mSearchData[idx].v)
+      if(currentPoint.v < mProblem.GetConstraintsNumber())
+        UpdateMu(mSearchData[idx], mSearchData[right_idx]);
+      else
         UpdateH(mSearchData[idx], mSearchData[right_idx]);
     }
   }
@@ -170,14 +153,12 @@ void MCOSolver::UpdateH(const Trial& left, const Trial& right)
 
 void MCOSolver::UpdateMu(const Trial& left, const Trial& right)
 {
-  //assert(left.v == right.v);
   double oldMu = mMuEstimations[left.v];
   double newZ = fabs(right.g[right.v] - left.g[left.v]) /
     pow(right.x - left.x, 1. / mProblem.GetDimension());
   if (newZ > oldMu || (oldMu == 1.0 && newZ > zeroHLevel))
   {
     mMuEstimations[left.v] = newZ;
-    //mNeedFullRecalc = true;
   }
 }
 
@@ -204,6 +185,11 @@ void MCOSolver::RecalcZandR()
             mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
       }
       mZEstimations[constraintsNumber] = fmin(mZEstimations[constraintsNumber], mSearchData[i].h);
+    }
+    else
+    {
+      mSearchData[i].h = mSearchData[i].g[mSearchData[i].v] / mMuEstimations[mSearchData[i].v];
+      mZEstimations[mSearchData[i].v] = fmin(mZEstimations[mSearchData[i].v], mSearchData[i].h);
     }
 
     if(i > 0 && !isLocal)
