@@ -36,6 +36,7 @@ int main(int argc, const char** argv)
   parser.add<double>("reliability", 'r', "reliability parameter for the method",
     false, 4.5, cmdline::range(1., 1000.));
   parser.add<double>("accuracy", 'e', "accuracy of the method", false, 0.01);
+  parser.add<double>("reserves", 'E', "eps-reserves for all constraints", false, 0);
   parser.add<int>("itersLimit", 'l', "limit of iterations for the method", false, 2000);
   parser.add<int>("dim", 'd', "test problem dimension (will be set if supported)", false, 2);
   parser.add<int>("localMix", 'm', "local mix parameter", false, 0);
@@ -58,6 +59,7 @@ int main(int argc, const char** argv)
 
   MCOSolver solver;
   solver.SetParameters(SolverParameters(parser.get<double>("accuracy"),
+    parser.get<double>("reserves"),
     parser.get<double>("reliability"),
     parser.get<int>("threadsNum"),
     parser.get<int>("itersLimit"),

@@ -71,6 +71,7 @@ void MCOSolver::InitDataStructures()
 
   mMuEstimations.resize(mProblem.GetConstraintsNumber());
   std::fill(mMuEstimations.begin(), mMuEstimations.end(), 1.0);
+  mMaxV = 0;
 }
 
 void MCOSolver::FirstIteration()
@@ -100,6 +101,13 @@ void MCOSolver::MakeTrial(Trial& trial)
       break;
     else
       trial.v++;
+  }
+
+  if(trial.v > mMaxV)
+  {
+    mMaxV = trial.v;
+    for(int i = 0; i < mMaxV; i++)
+      mZEstimations[i] = -mParameters.rEps;
   }
 
   if(trial.v == mProblem.GetConstraintsNumber())
@@ -189,7 +197,8 @@ void MCOSolver::RecalcZandR()
     else
     {
       mSearchData[i].h = mSearchData[i].g[mSearchData[i].v] / mMuEstimations[mSearchData[i].v];
-      mZEstimations[mSearchData[i].v] = fmin(mZEstimations[mSearchData[i].v], mSearchData[i].h);
+      if(mSearchData[i].v == mMaxV)
+        mZEstimations[mSearchData[i].v] = fmin(mZEstimations[mSearchData[i].v], mSearchData[i].h);
     }
 
     if(i > 0 && !isLocal)

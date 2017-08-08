@@ -8,6 +8,7 @@
 struct SolverParameters
 {
   double eps;
+  double rEps;
   double r;
   unsigned numThreads;
   unsigned iterationsLimit;
@@ -16,9 +17,9 @@ struct SolverParameters
   bool verbose = false;
 
   SolverParameters() {}
-  SolverParameters(double _eps, double _r,
+  SolverParameters(double _eps, double _rEps, double _r,
       unsigned _numThreads, unsigned _itersLimit, int _localMix = 0) :
-        eps(_eps), r(_r), numThreads(_numThreads), iterationsLimit(_itersLimit),
+        eps(_eps), rEps(_rEps), r(_r), numThreads(_numThreads), iterationsLimit(_itersLimit),
         localMix(_localMix)
   {}
 };
@@ -39,6 +40,7 @@ protected:
   bool mNeedFullRecalc;
   unsigned mIterationsCounter;
   unsigned mNumberOfTrials;
+  int mMaxV;
   const double mLocalOffset;
 
   void InitDataStructures();
