@@ -23,6 +23,7 @@ namespace
 
 MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool useComputeLoad)
 {
+  //most of these problems are taken from https://en.wikipedia.org/wiki/Test_functions_for_optimization
   MCOProblem problem;
   if(name == "schaffer")
   {
