@@ -2,6 +2,7 @@
 
 const unsigned solverMaxDim = 5;
 const unsigned solverMaxCriterions = 5;
+const unsigned solverMaxConstraints = 5;
 
 struct Trial
 {
@@ -9,6 +10,8 @@ struct Trial
   double y[solverMaxDim];
   double h;
   double z[solverMaxCriterions];
+  double g[solverMaxConstraints];
+  int v;
   Trial() {}
   Trial(double _x) : x(_x){}
 };

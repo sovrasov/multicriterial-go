@@ -243,6 +243,131 @@ MCOProblem TestMCOProblems::create(const std::string& name, int dimension, bool 
     );
     problem.SetDomain(2, {-3, -3}, {3, 3});
   }
+  if(name == "chakong")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return 2 + pow(y[0] - 2, 2) + pow(y[1] - 1, 2);
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return 9*y[0] - pow(y[1] - 1, 2);
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return y[0]*y[0] + y[1]*y[1] - 225;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return y[0] - 3*y[1] + 10;
+      }
+    );
+    problem.SetDomain(2, {-20, -20}, {20, 20});
+  }
+  if(name == "binh")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return 4*(y[0]*y[0] + y[1]*y[1]);
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return pow(y[0] - 5, 2) + pow(y[1] - 5, 2);
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return pow(y[0] - 5, 2) + y[1]*y[1] - 25;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -(pow(y[0] - 8, 2) + pow(y[1] +3, 2) -7.7);
+      }
+    );
+    problem.SetDomain(2, {0, 0}, {5, 3});
+  }
+  if(name == "tf4")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return y[0]*y[0] - y[1];
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return -0.5*y[0] - y[1] - 1;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -6.5 + y[0] / 6 +y[1];
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -7.5 + 0.5*y[0] + y[1];
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -30 + 5*y[0] + y[1];
+      }
+    );
+    problem.SetDomain(2, {-7, -7}, {4, 4});
+  }
+  if(name == "ctp1")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return y[0];
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return (1 + y[1])*exp(-y[0] / (1 + y[1]));
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -(1 + y[1])*exp(-y[0] / (1 + y[1])) / (0.858*exp(-0.541*y[0])) + 1;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -(1 + y[1])*exp(-y[0] / (1 + y[1])) / (0.728*exp(-0.295*y[0])) + 1;
+      }
+    );
+    problem.SetDomain(2, {0, 0}, {1, 1});
+  }
+  if(name == "constrex")
+  {
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return y[0];
+      }
+    );
+    problem.AddCriterion(
+      [useComputeLoad](const double* y) -> double {
+        return (1 + y[1]) / y[0];
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return -y[1] - 9*y[0] + 6;
+      }
+    );
+    problem.AddConstraint(
+      [](const double* y) -> double {
+        return y[1] - 9*y[0] + 1;
+      }
+    );
+    problem.SetDomain(2, {.1, 0}, {1, 5});
+  }
 
   return problem;
 }
