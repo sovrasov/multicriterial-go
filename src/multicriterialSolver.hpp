@@ -15,6 +15,7 @@ struct SolverParameters
   unsigned evloventTightness = 12;
   int localMix;
   bool verbose = false;
+  double filterEps = 0;
 
   SolverParameters() {}
   SolverParameters(double _eps, double _rEps, double _r,

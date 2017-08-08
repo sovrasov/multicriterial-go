@@ -37,6 +37,9 @@ int main(int argc, const char** argv)
     false, 4.5, cmdline::range(1., 1000.));
   parser.add<double>("accuracy", 'e', "accuracy of the method", false, 0.01);
   parser.add<double>("reserves", 'E', "eps-reserves for all constraints", false, 0);
+  parser.add<double>("fe", 'F', "tolerance of vector compasion."
+   "If small and not zero (like 1e-6), the method will produce an approximation"
+   "of Pareto set instead of Slater one", false, 0);
   parser.add<int>("itersLimit", 'l', "limit of iterations for the method", false, 2000);
   parser.add<int>("dim", 'd', "test problem dimension (will be set if supported)", false, 2);
   parser.add<int>("localMix", 'm', "local mix parameter", false, 0);
@@ -57,13 +60,16 @@ int main(int argc, const char** argv)
     exit(0);
   }
 
-  MCOSolver solver;
-  solver.SetParameters(SolverParameters(parser.get<double>("accuracy"),
+  auto parameters = SolverParameters(parser.get<double>("accuracy"),
     parser.get<double>("reserves"),
     parser.get<double>("reliability"),
     parser.get<int>("threadsNum"),
     parser.get<int>("itersLimit"),
-    parser.get<int>("localMix")));
+    parser.get<int>("localMix"));
+  parameters.filterEps = parser.get<double>("fe");
+
+  MCOSolver solver;
+  solver.SetParameters(parameters);
   solver.SetProblem(problem);
 
   auto start = std::chrono::system_clock::now();

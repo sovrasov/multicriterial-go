@@ -7,10 +7,10 @@
 namespace
 {
   const double zeroHLevel = 1e-12;
-  bool isVectorLess(const double* v1, const double* v2, int dim)
+  bool isVectorLess(const double* v1, const double* v2, int dim, double filterEps = 0)
   {
     for (int i = 0; i < dim; i++)
-      if (v1[i] >= v2[i])
+      if (v1[i] - filterEps >= v2[i])
         return false;
 
     return true;
@@ -308,7 +308,8 @@ std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
       {
         if(i != j && mSearchData[j].v == mProblem.GetConstraintsNumber())
         {
-          if(isVectorLess(mSearchData[j].z, mSearchData[i].z, mProblem.GetCriterionsNumber()))
+          if(isVectorLess(mSearchData[j].z, mSearchData[i].z,
+                  mProblem.GetCriterionsNumber(), mParameters.filterEps))
             isWeakOptimal = false;
         }
       }
