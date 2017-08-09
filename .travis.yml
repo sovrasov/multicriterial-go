@@ -8,8 +8,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
 
-#before_install:
-#  - pip install --user cpp-coveralls
+before_install:
+  - pip install --user cpp-coveralls
 
 script:
   - mkdir build
@@ -18,8 +18,8 @@ script:
   - make
   - ./unit_tests
 
-#after_success:
-#  - coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
+after_success:
+  - coveralls --root .. -E ".*3rd-party.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
 
 notifications:
   email: false
