@@ -13,50 +13,51 @@ auto solution = solver.GetWeakOptimalPoints();
 
 TEST(Solver, unconstrained_run_smoke)
 {
-	auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
-	RUN_SOLVER(strongin);
+  auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
+  RUN_SOLVER(strongin);
 
-	ASSERT_LE(solver.GetIterationsNumber(), 2000);
-	ASSERT_GE(solution.size(), 100u);
+  ASSERT_LE(solver.GetIterationsNumber(), 2000);
+  ASSERT_GE(solution.size(), 100u);
 }
 
 TEST(Solver, unconstrained_parallel_run_smoke)
 {
-	auto parameters = SolverParameters(0.01, 0,	4, 4,	2000,	0);
-	RUN_SOLVER(strongin);
+  auto parameters = SolverParameters(0.01, 0,	4, 4,	2000,	0);
+  RUN_SOLVER(strongin);
 
-	ASSERT_LE(solver.GetIterationsNumber(), 500);
-	ASSERT_GE(solution.size(), 100u);
+  ASSERT_LE(solver.GetIterationsNumber(), 500);
+  ASSERT_GE(solution.size(), 100u);
 }
 
 TEST(Solver, constrained_run_smoke)
 {
-	auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
-	RUN_SOLVER(chakong);
+  auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
+  RUN_SOLVER(chakong);
 
-	ASSERT_LE(solver.GetIterationsNumber(), 1000);
-	ASSERT_GE(solution.size(), 80u);
+  ASSERT_LE(solver.GetIterationsNumber(), 1000);
+  ASSERT_GE(solution.size(), 80u);
 }
 
 TEST(Solver, constrained_parallel_run_smoke)
 {
-	auto parameters = SolverParameters(0.01, 0,	4, 4,	2000,	0);
-	RUN_SOLVER(chakong);
+  auto parameters = SolverParameters(0.01, 0,	4, 4,	2000,	0);
+  RUN_SOLVER(chakong);
 
-	ASSERT_LE(solver.GetIterationsNumber(), 250);
-	ASSERT_GE(solution.size(), 80u);
+  ASSERT_LE(solver.GetIterationsNumber(), 250);
+  ASSERT_GE(solution.size(), 80u);
 }
 
 TEST(Solver, mixed_algo_run_smoke)
 {
-	auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
-	RUN_SOLVER(strongin);
+  auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
+  RUN_SOLVER(chakong);
 
-	int defaultAlgoIters = solver.GetIterationsNumber();
+  int defaultAlgoIters = solver.GetIterationsNumber();
 
-	parameters.localMix = 2;
-	solver.SetParameters(parameters);
-	solver.Solve();
+  parameters.localMix = 2;
+  solver.SetParameters(parameters);
+  solver.Solve();
 
-	ASSERT_LE(solver.GetIterationsNumber(), defaultAlgoIters);
+  ASSERT_LE(defaultAlgoIters, 1000);
+  ASSERT_LE(solver.GetIterationsNumber(), defaultAlgoIters);
 }
