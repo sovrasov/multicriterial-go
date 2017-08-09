@@ -46,3 +46,17 @@ TEST(Solver, constrained_parallel_run_smoke)
 	ASSERT_LE(solver.GetIterationsNumber(), 250);
 	ASSERT_GE(solution.size(), 80u);
 }
+
+TEST(Solver, mixed_algo_run_smoke)
+{
+	auto parameters = SolverParameters(0.01, 0,	4, 1,	2000,	0);
+	RUN_SOLVER(strongin);
+
+	int defaultAlgoIters = solver.GetIterationsNumber();
+
+	parameters.localMix = 2;
+	solver.SetParameters(parameters);
+	solver.Solve();
+
+	ASSERT_LE(solver.GetIterationsNumber(), defaultAlgoIters);
+}

@@ -59,6 +59,7 @@ void MCOSolver::InitDataStructures()
   double leftDomainBound[solverMaxDim], rightDomainBound[solverMaxDim];
   mProblem.GetBounds(leftDomainBound, rightDomainBound);
   mEvolvent = Evolvent(mProblem.GetDimension(), mParameters.evloventTightness, leftDomainBound, rightDomainBound);
+  mSearchData.clear();
   mSearchData.reserve(mParameters.iterationsLimit);
   mNextPoints.resize(mParameters.numThreads);
   mNextIntervals.resize(mParameters.numThreads);
