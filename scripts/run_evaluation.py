@@ -6,8 +6,6 @@ import re
 import subprocess
 
 if not (len(sys.argv) is 2):
-    import numpy as np
-    import matplotlib.pyplot as plt
     import matplotlib
     from draw_2d import readPoints, drawPoints
     matplotlib.style.use('classic')
