@@ -3,4 +3,50 @@
 [![License](https://img.shields.io/badge/license-%20MIT-blue.svg)](../master/LICENSE)
 [![Code Health](https://landscape.io/github/sovrasov/multicriterial-go/master/landscape.svg?style=flat)](https://landscape.io/github/sovrasov/multicriterial-go/master)
 # multicriterial-go
-An implementation of the algorithm to solve multidimensional multicriterial global optimization problems
+An implementation of the algorithm to solve multidimensional multicriterial global optimization problems with non-convex constraints.
+## Minimal usage example
+```c++
+MCOProblem problem;
+//define problem with two objectives
+problem.AddCriterion(
+  (const double* y) -> double {
+    return fmin(hypot(y[0], y[1]) + .5, hypot(y[0] - 1.5, y[1] + 1.5));
+  }
+);
+problem.AddCriterion(
+  (const double* y) -> double {
+    return hypot(y[0] + .5, y[1] - .5);
+  }
+);
+//define search domain
+problem.SetDomain(2, {-1., -2.}, {2., 1.});
+//set algorithm parameters
+auto parameters = SolverParameters(0.01, //accuracy
+  0, //eps-reserves
+  4, //reliability
+  2, //number of threads
+  2000, //iterations limit
+  4); //local mix parameter
+
+MCOSolver solver;
+solver.SetParameters(parameters);
+solver.SetProblem(problem);
+solver.Solve();
+
+auto solution = solver.GetWeakOptimalPoints();
+
+//print points from Slater set and corresponding values of objectives
+for(const auto& x : points)
+{
+  for(int i = 0; i < problem.GetDimension(); i++)
+    cout << x.y[i] << ", ";
+  for(int i = 0; i < problem.GetCriterionsNumber() - 1; i++)
+    cout << x.z[i] << ", ";
+  cout << x.z[problem.GetCriterionsNumber() - 1] << ";\n";
+}
+```
+
+The resulting Slater are points shown on the picture below:
+
+
+<img src="./pics/strongin.png" width="500"/>
