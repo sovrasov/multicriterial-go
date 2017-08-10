@@ -379,13 +379,8 @@ double MCOSolver::CalculateLocalR(const Interval& i) const
   else
     value = CalculateR(i) / (i.pl.h - mZEstimations[i.pl.v] + mLocalOffset);
 
-#ifdef WIN32
-  if (!_finite(value))
-#else
   if (!std::isfinite(value))
-#endif
-  {
     throw std::runtime_error("Infinite R!");
-  }
+
   return value;
 }
