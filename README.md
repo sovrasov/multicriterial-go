@@ -3,7 +3,22 @@
 [![License](https://img.shields.io/badge/license-%20MIT-blue.svg)](../master/LICENSE)
 [![Code Health](https://landscape.io/github/sovrasov/multicriterial-go/master/landscape.svg?style=flat)](https://landscape.io/github/sovrasov/multicriterial-go/master)
 # multicriterial-go
-An implementation of the algorithm to solve multidimensional multicriterial global optimization problems with non-convex constraints.
+An implementation of the algorithm to solve multidimensional multicriterial global optimization problems with non-convex constraints. Exact problem statement can be found [here](https://en.wikipedia.org/wiki/Multi-objective_optimization).
+
+The implementation is compact and designed to solve low-dimensional (1-4) problems with
+Lipschitzian objectives and constraints (up to 5 constraints and objectives).
+The method is theoretically proved to converge to all Slater points (in case of
+Lipschitzian functions and sufficient reliability parameter `r`).
+
+## How to clone & build
+```bash
+git clone --recursive https://github.com/sovrasov/multicriterial-go.git
+cd multicriterial-go
+mkdir build
+cd build
+cmake ..
+make -j 4
+```
 ## Minimal usage example
 ```c++
 MCOProblem problem;
