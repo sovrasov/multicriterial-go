@@ -61,7 +61,7 @@ for(const auto& x : points)
 }
 ```
 
-The resulting Slater are points shown on the picture below:
+The resulting Slater points are shown on the picture below:
 
 
 <img src="./pics/strongin.png" width="500"/>
