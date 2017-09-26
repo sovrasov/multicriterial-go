@@ -73,6 +73,7 @@ void MCOSolver::InitDataStructures()
   mMuEstimations.resize(mProblem.GetConstraintsNumber());
   std::fill(mMuEstimations.begin(), mMuEstimations.end(), 1.0);
   mMaxV = 0;
+  mDimExponent = 1. / mProblem.GetDimension();
 }
 
 void MCOSolver::FirstIteration()
@@ -151,7 +152,7 @@ void MCOSolver::UpdateH(const Trial& left, const Trial& right)
   {
     double oldH = mHEstimations[j];
     double newH = fabs(right.z[j] - left.z[j]) /
-      pow(right.x - left.x, 1. / mProblem.GetDimension());
+      pow(right.x - left.x, mDimExponent);
     if (newH > oldH || (oldH == 1.0 && newH > zeroHLevel))
     {
       mHEstimations[j] = newH;
@@ -164,7 +165,7 @@ void MCOSolver::UpdateMu(const Trial& left, const Trial& right)
 {
   double oldMu = mMuEstimations[left.v];
   double newZ = fabs(right.g[right.v] - left.g[left.v]) /
-    pow(right.x - left.x, 1. / mProblem.GetDimension());
+    pow(right.x - left.x, mDimExponent);
   if (newZ > oldMu || (oldMu == 1.0 && newZ > zeroHLevel))
   {
     mMuEstimations[left.v] = newZ;
@@ -176,7 +177,8 @@ void MCOSolver::RecalcZandR()
   mNextIntervals.clear();
   bool isLocal = IsLocalIteration();
   const int constraintsNumber = mProblem.GetConstraintsNumber();
-  for(size_t i = 0; i < mSearchData.size(); i++)
+  const size_t dataSize = mSearchData.size();
+  for(size_t i = 0; i < dataSize; i++)
   {
     if(mSearchData[i].v == constraintsNumber)
     {
@@ -189,7 +191,7 @@ void MCOSolver::RecalcZandR()
       else
       {
         mSearchData[i].h = std::numeric_limits<double>::min();
-        for(size_t j = 0; j < mSearchData.size(); j++)
+        for(size_t j = 0; j < dataSize; j++)
           if(mSearchData[j].v == constraintsNumber)
             mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
       }
@@ -205,7 +207,7 @@ void MCOSolver::RecalcZandR()
     if(i > 0 && !isLocal)
     {
       Interval currentInt(mSearchData[i - 1], mSearchData[i]);
-      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
+      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, mDimExponent);
       currentInt.R = CalculateR(currentInt);
       mNextIntervals.pushWithPriority(currentInt);
     }
@@ -213,10 +215,10 @@ void MCOSolver::RecalcZandR()
 
   if(isLocal)
   {
-    for(size_t i = 1; i < mSearchData.size(); i++)
+    for(size_t i = 1; i < dataSize; i++)
     {
       Interval currentInt(mSearchData[i - 1], mSearchData[i]);
-      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, 1. / mProblem.GetDimension());
+      currentInt.delta = pow(currentInt.pr.x - currentInt.pl.x, mDimExponent);
       currentInt.R = CalculateLocalR(currentInt);
       mNextIntervals.pushWithPriority(currentInt);
     }
@@ -228,8 +230,9 @@ void MCOSolver::RecalcZandR()
 double MCOSolver::ComputeH(const Trial& x1, const Trial& x2)
 {
   double value = std::numeric_limits<double>::max();
+  const int numC = mProblem.GetCriterionsNumber();
 
-  for(int i = 0; i < mProblem.GetCriterionsNumber(); i++)
+  for(int i = 0; i < numC; i++)
   {
     value = fmin(value, (x1.z[i] - x2.z[i]) / mHEstimations[i]);
   }
@@ -299,18 +302,21 @@ bool MCOSolver::CheckStopCondition() const
 std::vector<Trial> MCOSolver::GetWeakOptimalPoints() const
 {
   std::vector<Trial> optTrials;
+  const int numC = mProblem.GetCriterionsNumber();
+  const size_t dataSize = mSearchData.size();
+  const int numConstr = mProblem.GetConstraintsNumber();
 
-  for(size_t i = 0; i < mSearchData.size(); i++)
+  for(size_t i = 0; i < dataSize; i++)
   {
-    if(mSearchData[i].v == mProblem.GetConstraintsNumber())
+    if(mSearchData[i].v == numConstr)
     {
       bool isWeakOptimal = true;
-      for(size_t j = 0; j < mSearchData.size(); j++)
+      for(size_t j = 0; j < dataSize; j++)
       {
-        if(i != j && mSearchData[j].v == mProblem.GetConstraintsNumber())
+        if(i != j && mSearchData[j].v == numConstr)
         {
           if(isVectorLess(mSearchData[j].z, mSearchData[i].z,
-                  mProblem.GetCriterionsNumber(), mParameters.filterEps))
+                  numC, mParameters.filterEps))
             isWeakOptimal = false;
         }
       }

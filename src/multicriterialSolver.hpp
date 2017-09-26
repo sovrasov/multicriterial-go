@@ -43,6 +43,7 @@ protected:
   unsigned mNumberOfTrials;
   int mMaxV;
   const double mLocalOffset;
+  double mDimExponent;
 
   void InitDataStructures();
   void MakeTrial(Trial& trial);
