@@ -190,7 +190,7 @@ void MCOSolver::RecalcZandR()
       }
       else
       {
-        mSearchData[i].h = std::numeric_limits<double>::min();
+        mSearchData[i].h = std::numeric_limits<double>::lowest();
         for(size_t j = 0; j < dataSize; j++)
           if(mSearchData[j].v == constraintsNumber)
             mSearchData[i].h = fmax(mSearchData[i].h, ComputeH(mSearchData[i], mSearchData[j]));
