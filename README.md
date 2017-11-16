@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-%20MIT-blue.svg)](../master/LICENSE)
 [![Code Health](https://landscape.io/github/sovrasov/multicriterial-go/master/landscape.svg?style=flat)](https://landscape.io/github/sovrasov/multicriterial-go/master)
 # multicriterial-go
-An implementation of the algorithm to solve multidimensional multicriterial global optimization problems with non-convex constraints. Exact problem statement can be found [here](https://en.wikipedia.org/wiki/Multi-objective_optimization).
+An implementation of the algorithm to solve multidimensional multicriterial global optimization problems with non-convex constraints. Exact problem statement can be found [here](https://en.wikipedia.org/wiki/Multi-objective_optimization). Description of the implemented method and numerical examples are presented in paper [Sovrasov V.: Parallel Multi-Objective Optimization Method for Finding Complete Set of Weakly Efficient Solutions, Proceedings of the 3rd Ural Workshop on Parallel, Distributed, and Cloud Computing for Young Scientists, Yekaterinburg, Russia, October 19th, 2017](http://ceur-ws.org/Vol-1990/paper-01.pdf).
 
 The implementation is compact and designed to solve low-dimensional (1-4) problems with
 Lipschitzian objectives and constraints (up to 5 constraints and objectives).
